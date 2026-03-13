@@ -4,10 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PpApplication {
-
+public class BackToFrontApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(PpApplication.class, args);
+		SpringApplication.run(BackToFrontApplication.class, args);
 	}
-
 }
