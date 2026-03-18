@@ -1,0 +1,31 @@
+volumes:
+  cloudpub-config:
+services:
+  notification-service:
+    container_name: 'notification-service'
+    image: 'notification-service'
+    build:
+      context: ./
+      dockerfile: 'notification-service/Dockerfile'
+    env_file:
+      - .env
+    environment:
+      - JAVA_OPTS=-Xmx512M
+      - BOT_NAME=${BOT_NAME}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - BOT_WEBHOOK_PATH=${BOT_WEBHOOK_PATH}
+    ports:
+      - "8081:8081"
+    restart: on-failure
+
+  cloudpub:
+    image: cloudpub/cloudpub:latest-arm64
+    restart: unless-stopped
+    environment:
+      - TOKEN=${CLOUDPUB_API_KEY}
+      - HTTP=notification-service:8081
+    command: run
+    depends_on:
+      - notification-service
+    volumes:
+      - cloudpub-config:/home/cloudpub

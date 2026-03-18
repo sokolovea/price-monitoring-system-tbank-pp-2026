@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: notification-service
+
+server:
+  port: 8081
+
+bot:
+  name: {BOT_NAME}
+  token: {BOT_TOKEN}
+  webhook-path: {BOT_WEBHOOK_PATH}
+  base-url: {BOT_BASE_URL}
