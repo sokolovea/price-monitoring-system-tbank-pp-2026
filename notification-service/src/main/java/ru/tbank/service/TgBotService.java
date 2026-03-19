@@ -1,21 +1,23 @@
 package ru.tbank.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.tbank.properties.TgBotProperties;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class TgBotService extends TelegramWebhookBot {
     private final TgBotProperties tgBotProperties;
+
+    public TgBotService(TgBotProperties tgBotProperties) {
+        super(tgBotProperties.getToken());
+        this.tgBotProperties = tgBotProperties;
+    }
+
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
@@ -45,12 +47,5 @@ public class TgBotService extends TelegramWebhookBot {
     @Override
     public String getBotUsername() {
         return tgBotProperties.getName();
-    }
-
-    public void sendMessage(Message message) throws TelegramApiException {
-        execute(SendMessage.builder()
-                .chatId(message.getChatId())
-                .text(message.getText())
-                .build());
     }
 }
