@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "user")
 @Getter
 @Setter
 public class User implements UserDetails {
@@ -27,7 +27,7 @@ public class User implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-    private String role = "USER";  // по умолчанию USER, можно ROLE_USER
+    private String role = "USER";
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

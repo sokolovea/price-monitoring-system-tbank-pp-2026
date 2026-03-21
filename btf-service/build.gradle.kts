@@ -25,6 +25,7 @@ repositories {
 }
 
 dependencies {
+    implementation("jakarta.validation:jakarta.validation-api:4.0.0-M1")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -33,12 +34,13 @@ dependencies {
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.projectlombok:lombok")
+    testImplementation("jakarta.validation:jakarta.validation-api:4.0.0-M1-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-jdbc-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-web-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-security")
-    testImplementation("io.jsonwebtoken:jjwt:0.13.0")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.springframework.boot:spring-boot-starter-security-test")
+    testImplementation("io.jsonwebtoken:jjwt:0.13.0-test")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher-test")
 }
 
 tasks.test {

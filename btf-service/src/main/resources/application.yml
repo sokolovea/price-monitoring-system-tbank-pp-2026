@@ -2,10 +2,13 @@ spring:
   application:
     name: pp
 
+  config:
+    import: optional:file:application-local.yml
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/price_hunter
-    username: postgres
-    password: 1
+    url: ${btf.spring.datasource.url}
+    username: ${btf.spring.datasource.username}
+    password: ${btf.spring.datasource.password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -18,7 +21,8 @@ spring:
     show-sql: true
 
 jwt:
-  secret: exampleIsuperIpuperIkeyInotIsecuredImustIbeIreplacedImustIbeIreplacedImustIbeIreplacedImustIbeIreplaced
-  expiration-ms: 1800000   # 30 minutes
+  secret: ${btf.jwt.secret}
+  expiration-ms: ${btf.jwt.expiration-ms}
+
 server:
   port: 8081
