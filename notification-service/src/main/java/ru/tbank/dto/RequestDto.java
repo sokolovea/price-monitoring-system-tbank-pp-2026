@@ -5,5 +5,7 @@ import lombok.Data;
 @Data
 public class RequestDto {
     Long chatId;
-    String text;
+    String productName;
+    String productPhoto;
+    String productUrl;
 }

@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.tbank.dto.RequestDto;
@@ -17,16 +16,13 @@ import ru.tbank.service.TgBotService;
 public class WebhookController {
     private final TgBotService botService;
 
-    @PostMapping("/webhook")
+    @PostMapping("/callback")
     public BotApiMethod<?> handleUpdate(@RequestBody Update update) {
         return botService.onWebhookUpdateReceived(update);
     }
 
     @GetMapping("/webhook/send")
     public void sendMessage(@RequestBody RequestDto request) throws TelegramApiException {
-        botService.execute(SendMessage.builder()
-                .chatId(request.getChatId().toString())
-                .text(request.getText())
-                .build());
+        botService.executeNotification(request);
     }
 }

@@ -23,7 +23,7 @@ public class TgBotConfig {
             log.info("Registering webhook...");
 
             SetWebhook setWebhook = SetWebhook.builder()
-                    .url(tgBotProperties.getBaseUrl() + tgBotProperties.getWebhookPath())
+                    .url(tgBotProperties.getBaseUrl())
                     .build();
 
             tgBotService.setWebhook(setWebhook);
