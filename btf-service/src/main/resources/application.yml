@@ -2,10 +2,13 @@ spring:
   application:
     name: pp
 
+  config:
+    import: optional:file:application-local.yml
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/your_database_name
-    username: your_username
-    password: your_password
+    url: ${btf.spring.datasource.url}
+    username: ${btf.spring.datasource.username}
+    password: ${btf.spring.datasource.password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -16,3 +19,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+
+jwt:
+  secret: ${btf.jwt.secret}
+  expiration-ms: ${btf.jwt.expiration-ms}
+
+server:
+  port: 8081
