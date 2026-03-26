@@ -16,11 +16,13 @@ import ru.tbank.service.TgBotService;
 public class WebhookController {
     private final TgBotService botService;
 
+    //Этот контроллер использует сам телеграм, если отправлять запросы извне работать не будет
     @PostMapping("/callback")
     public BotApiMethod<?> handleUpdate(@RequestBody Update update) {
         return botService.onWebhookUpdateReceived(update);
     }
 
+    //Контроллер для наших вебхуков
     @GetMapping("/webhook/send")
     public void sendMessage(@RequestBody RequestDto request) throws TelegramApiException {
         botService.executeNotification(request);

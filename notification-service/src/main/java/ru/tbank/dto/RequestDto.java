@@ -1,11 +1,13 @@
 package ru.tbank.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class RequestDto {
     Long chatId;
     String productName;
-    String productPhoto;
+    String productPhotoUrl;
     String productUrl;
 }

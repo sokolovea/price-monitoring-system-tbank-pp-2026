@@ -28,20 +28,20 @@ public class TgBotService extends TelegramWebhookBot {
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        log.info("Received update: {}", update);
+        log.debug("Received update: {}", update);
         if (update.hasMessage()) {
             var message = update.getMessage();
             var chatId = message.getChatId();
             var text = message.getText();
 
-            log.info("Message from {}: {}", chatId, text);
+            log.debug("Message from {}: {}", chatId, text);
 
             var sendMessage = new SendMessage(chatId.toString(), "");
 
             if (text.startsWith("/start")) {
-                String[] parts = text.split(" ", 2);
+                var parts = text.split(" ");
                 if (parts.length > 1) {
-                    var userId = Integer.parseInt(text.split(" ")[1]);
+                    var userId = Long.parseLong(text.split(" ")[1]);
                     sendMessage.setText("Привязка к пользователю " + userId);
 
                     //todo проверка регистрации
@@ -74,7 +74,7 @@ public class TgBotService extends TelegramWebhookBot {
 
         execute(SendPhoto.builder()
                 .chatId(requestDto.getChatId())
-                .photo(new InputFile(requestDto.getProductPhoto()))
+                .photo(new InputFile(requestDto.getProductPhotoUrl()))
                 .caption("Цена на товар '" + requestDto.getProductName() + "' упала!")
                 .replyMarkup(keyboard).build());
     }
