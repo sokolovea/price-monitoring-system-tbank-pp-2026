@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: pp
+
+  config:
+    import: optional:file:application-local.yml
+
+  datasource:
+    url: ${btf.spring.datasource.url}
+    username: ${btf.spring.datasource.username}
+    password: ${btf.spring.datasource.password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+jwt:
+  secret: ${btf.jwt.secret}
+  expiration-ms: ${btf.jwt.expiration-ms}
+
+server:
+  port: 8081
