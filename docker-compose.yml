@@ -10,7 +10,6 @@ services:
     env_file:
       - .env
     environment:
-      - JAVA_OPTS=-Xmx512M
       - BOT_NAME=${BOT_NAME}
       - BOT_TOKEN=${BOT_TOKEN}
       - BOT_WEBHOOK_PATH=${BOT_WEBHOOK_PATH}

@@ -1,13 +1,18 @@
-package ru.tbank.dto;
+package ru.tbank.pp.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class RequestDto {
     Long chatId;
+
+    @NotBlank
     String productName;
+
+    @NotBlank
     String productPhotoUrl;
+
+    @NotBlank
     String productUrl;
 }

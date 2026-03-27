@@ -1,4 +1,4 @@
-package ru.tbank.service;
+package ru.tbank.pp.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -6,13 +6,14 @@ import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.tbank.dto.RequestDto;
-import ru.tbank.properties.TgBotProperties;
+import ru.tbank.pp.dto.RequestDto;
+import ru.tbank.pp.properties.TgBotProperties;
 
 import java.util.List;
 
@@ -21,9 +22,14 @@ import java.util.List;
 public class TgBotService extends TelegramWebhookBot {
     private final TgBotProperties tgBotProperties;
 
-    public TgBotService(TgBotProperties tgBotProperties) {
+    private static final String PRICE_DROP_CAPTION = "💰 Цена на товар '%s' упала!";
+    private static final String USER_LINK = "Привязка к пользователю %d";
+    private static final String VIEW_PRODUCT_BUTTON_TEXT = "Посмотреть товар";
+
+    public TgBotService(TgBotProperties tgBotProperties) throws TelegramApiException {
         super(tgBotProperties.getToken());
         this.tgBotProperties = tgBotProperties;
+        this.setWebhook(new SetWebhook(tgBotProperties.getBaseUrl()));
     }
 
     @Override
@@ -41,17 +47,20 @@ public class TgBotService extends TelegramWebhookBot {
             if (text.startsWith("/start")) {
                 var parts = text.split(" ");
                 if (parts.length > 1) {
-                    var userId = Long.parseLong(text.split(" ")[1]);
-                    sendMessage.setText("Привязка к пользователю " + userId);
-
-                    //todo проверка регистрации
-//                if (backendClient.isUserRegistered(userId)) {
-//                    backendClient.connectService(userId, TELEGRAM, chatId);
-//                    sendMessage.setText("Пользователь привязан");
-//                }
-//                else {
-//                    sendMessage.setText("Ошибка в привязке к пользователю");
-//                }
+                    try {
+                        var userId = Long.parseLong(parts[1]);
+                        sendMessage.setText(String.format(USER_LINK, userId));
+                    } catch (NumberFormatException e) {
+                        log.warn("Invalid user ID format: {}", parts[1]);
+                    }
+//                    todo проверка регистрации
+//                    if (backendClient.isUserRegistered(userId)) {
+//                        backendClient.connectService(userId, TELEGRAM, chatId);
+//                        sendMessage.setText("Пользователь привязан");
+//                    }
+//                    else {
+//                        sendMessage.setText("Ошибка в привязке к пользователю");
+//                    }
                 }
 
             }
@@ -64,7 +73,7 @@ public class TgBotService extends TelegramWebhookBot {
 
     public void executeNotification(RequestDto requestDto) throws TelegramApiException {
         var button = InlineKeyboardButton.builder()
-                .text("Посмотреть товар")
+                .text(VIEW_PRODUCT_BUTTON_TEXT)
                 .url(requestDto.getProductUrl())
                 .build();
 
@@ -75,7 +84,7 @@ public class TgBotService extends TelegramWebhookBot {
         execute(SendPhoto.builder()
                 .chatId(requestDto.getChatId())
                 .photo(new InputFile(requestDto.getProductPhotoUrl()))
-                .caption("Цена на товар '" + requestDto.getProductName() + "' упала!")
+                .caption(String.format(PRICE_DROP_CAPTION, requestDto.getProductName()))
                 .replyMarkup(keyboard).build());
     }
 
