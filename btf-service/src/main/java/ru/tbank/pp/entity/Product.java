@@ -19,6 +19,7 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
@@ -34,13 +35,13 @@ public class Product {
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false)
+    @Column(name = "is_tracked", nullable = false)
     private boolean isTracked;
 
-    @Column(nullable = false)
+    @Column(name = "option_name", nullable = false)
     private String optionName;
 
-    @Column(nullable = false)
+    @Column(name = "option_id", nullable = false)
     private Long optionId;
 
     @Column(nullable = false)
