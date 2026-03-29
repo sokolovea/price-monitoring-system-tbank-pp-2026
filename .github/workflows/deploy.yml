@@ -21,7 +21,9 @@ jobs:
             EOF
 
       - name: Build with docker-compose
-        run: docker-compose up -d
+        run: |
+          docker-compose down
+          docker-compose up -d --build
 
       - name: Install certificates for telegram
         run: |
