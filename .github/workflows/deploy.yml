@@ -28,3 +28,7 @@ jobs:
           curl -F "url=https://${{secrets.SERVER_IP}}:443/callback" \
                -F "certificate=@/home/github-runner/certs/certificate.pem" \
                https://api.telegram.org/bot${{secrets.BOT_TOKEN}}/setWebhook
+
+      - name: Check Telegram webhook info
+        run: |
+          curl https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/getWebhookInfo

@@ -63,7 +63,11 @@ public class TgBotService extends TelegramWebhookBot {
 //                    }
                 }
 
+            } else {
+                sendMessage.setText(text);
             }
+
+
 
             return sendMessage;
         }
