@@ -24,6 +24,6 @@ jobs:
 
       - name: Install certificates for telegram
         run: |
-          curl -F "url=https://secrets.${{secrets.SERVER_IP}}:443/callback" \
+          curl -F "url=https://${{secrets.SERVER_IP}}:443/callback" \
                -F "certificate=@certificate.pem" \
                https://api.telegram.org/bot${{secrets.BOT_TOKEN}}/setWebhook
