@@ -10,6 +10,15 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
+
+      - name: Create .env file from secrets
+        run: |
+            cat > .env << EOF
+            BOT_NAME=${{ secrets.BOT_NAME }}
+            BOT_TOKEN=${{ secrets.BOT_TOKEN }}
+            BOT_BASE_URL=${{ secrets.SERVER_IP }}:443
+            EOF
+
       - name: Build with docker-compose
         run: docker-compose up -d
 
