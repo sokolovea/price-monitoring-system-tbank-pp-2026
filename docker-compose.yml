@@ -17,14 +17,14 @@ services:
       - "8081:8081"
     restart: on-failure
 
-  cloudpub:
-    image: cloudpub/cloudpub:latest-arm64
-    restart: unless-stopped
-    environment:
-      - TOKEN=${CLOUDPUB_API_KEY}
-      - HTTP=notification-service:8081
-    command: run
-    depends_on:
-      - notification-service
-    volumes:
-      - cloudpub-config:/home/cloudpub
+#  cloudpub:
+#    image: cloudpub/cloudpub:latest-arm64
+#    restart: unless-stopped
+#    environment:
+#      - TOKEN=${CLOUDPUB_API_KEY}
+#      - HTTP=notification-service:8081
+#    command: run
+#    depends_on:
+#      - notification-service
+#    volumes:
+#      - cloudpub-config:/home/cloudpub
