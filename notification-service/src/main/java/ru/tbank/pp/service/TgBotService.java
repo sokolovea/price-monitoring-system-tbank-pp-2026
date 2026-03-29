@@ -29,7 +29,7 @@ public class TgBotService extends TelegramWebhookBot {
     public TgBotService(TgBotProperties tgBotProperties) throws TelegramApiException {
         super(tgBotProperties.getToken());
         this.tgBotProperties = tgBotProperties;
-        this.setWebhook(new SetWebhook(tgBotProperties.getBaseUrl()));
+        //this.setWebhook(new SetWebhook(tgBotProperties.getBaseUrl()));
     }
 
     @Override
