@@ -3,6 +3,7 @@ name: Deploy Project
 on:
   push:
     branches:
+      - develop
       - feature/PMSYS-28
 
 jobs:
