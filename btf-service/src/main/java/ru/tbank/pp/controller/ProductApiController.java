@@ -6,6 +6,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import ru.tbank.pp.api.ProductsApi;
 import ru.tbank.pp.model.ProductsNotification;
 import ru.tbank.pp.model.ProductsProduct;
+import ru.tbank.pp.model.ProductsProductForUpdate;
 import ru.tbank.pp.model.ProductsProductPreview;
 
 import java.util.List;
@@ -16,6 +17,11 @@ public class ProductApiController implements ProductsApi {
     @Override
     public Optional<NativeWebRequest> getRequest() {
         return ProductsApi.super.getRequest();
+    }
+
+    @Override
+    public ResponseEntity<List<ProductsProductForUpdate>> productsGetProductsForUpdate() {
+        return ProductsApi.super.productsGetProductsForUpdate();
     }
 
     @Override
