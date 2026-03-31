@@ -82,6 +82,22 @@ paths:
           application/json:
             schema:
               type: string
+  /products/for-update:
+    get:
+      operationId: Products_getProductsForUpdate
+      summary: Получение списка товаров для обновления
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Products.ProductForUpdate'
+      tags:
+        - Products
   /products/preview:
     post:
       operationId: Products_productPreview
@@ -388,6 +404,16 @@ components:
             $ref: '#/components/schemas/Products.PriceHistory'
         notification:
           $ref: '#/components/schemas/Products.Notification'
+    Products.ProductForUpdate:
+      type: object
+      required:
+        - url
+        - marketplace
+      properties:
+        url:
+          type: string
+        marketplace:
+          $ref: '#/components/schemas/Products.Marketplace'
     Products.ProductPreview:
       type: object
       required:
