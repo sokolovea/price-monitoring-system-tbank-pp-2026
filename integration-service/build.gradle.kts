@@ -35,6 +35,9 @@ dependencies {
     //testImplementation("org.springframework.boot:spring-boot-starter-jdbc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-web-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    //kafka
+    implementation("org.springframework.kafka:spring-kafka")
+    implementation(project(":core"))
 }
 
 tasks.test {
