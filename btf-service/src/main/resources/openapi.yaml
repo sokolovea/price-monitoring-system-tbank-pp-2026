@@ -1,0 +1,495 @@
+openapi: 3.0.0
+info:
+  title: PriceHunter API
+  version: 0.0.0
+tags:
+  - name: Products
+  - name: Authentication
+  - name: ServiceConnection
+paths:
+  /auth/login:
+    post:
+      operationId: Authentication_login
+      summary: Аутентификация пользователя и получение JWT токена
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Authentication.AuthResponse'
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Authentication.AuthRequest'
+  /auth/register:
+    post:
+      operationId: Authentication_register
+      summary: Регистрация нового пользователя
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Authentication.AuthResponse'
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Authentication.AuthRequest'
+  /products:
+    get:
+      operationId: Products_getProducts
+      summary: Возвращает список товаров пользователя
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Products.Product'
+      tags:
+        - Products
+    post:
+      operationId: Products_addProduct
+      summary: Добавляет новый товар для отслеживания
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products.Product'
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+  /products/for-update:
+    get:
+      operationId: Products_getProductsForUpdate
+      summary: Получение списка товаров для обновления
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Products.ProductForUpdate'
+      tags:
+        - Products
+  /products/preview:
+    post:
+      operationId: Products_productPreview
+      summary: Предпросмотр товара перед отслеживанием
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products.ProductPreview'
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+  /products/{productId}:
+    get:
+      operationId: Products_getProductById
+      summary: Возвращает детальную информацию о товаре по его ID
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products.Product'
+      tags:
+        - Products
+    delete:
+      operationId: Products_deleteProduct
+      summary: Удаляет товар из списка отслеживания по его ID
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: The request has succeeded.
+      tags:
+        - Products
+  /products/{productId}/notification:
+    post:
+      operationId: Products_notificationSubscribe
+      summary: Подписка на уведомление по почте на определенный товар с порогом цены для срабатывания
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products.Notification'
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Products.Notification'
+  /products/{productId}/notification/unsubscribe:
+    delete:
+      operationId: Products_notificationUnSubscribe
+      summary: Отписка от уведомлений для товара
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: boolean
+      tags:
+        - Products
+  /service/check-status:
+    post:
+      operationId: ServiceConnection_checkStatus
+      summary: Проверка статуса пользователя по id и сервису
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: boolean
+      tags:
+        - ServiceConnection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceConnection.StatusCheckRequest'
+  /service/connect:
+    post:
+      operationId: ServiceConnection_connect
+      summary: Подключение пользователя с internal id
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+      tags:
+        - ServiceConnection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceConnection.ConnectRequest'
+components:
+  schemas:
+    Authentication.AuthRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    Authentication.AuthResponse:
+      type: object
+      required:
+        - email
+        - token
+      properties:
+        email:
+          type: string
+        token:
+          type: string
+    Products.Marketplace:
+      type: string
+      enum:
+        - Wildberries
+        - Ozon
+    Products.Notification:
+      type: object
+      required:
+        - enabled
+        - thresholdPrice
+      properties:
+        enabled:
+          type: boolean
+          example: true
+        thresholdPrice:
+          type: integer
+          format: int32
+          example: 1400
+    Products.PriceHistory:
+      type: object
+      required:
+        - price
+        - date
+      properties:
+        price:
+          type: integer
+          format: int32
+          example: 1450
+        date:
+          type: string
+          format: date-time
+    Products.Product:
+      type: object
+      required:
+        - id
+        - nmId
+        - name
+        - brand
+        - image
+        - currentPrice
+        - priceChange
+        - priceChangePercent
+        - lastChecked
+        - marketplace
+        - url
+      properties:
+        id:
+          type: integer
+          format: int64
+        nmId:
+          type: integer
+          format: int64
+        name:
+          type: string
+          example: Бомбочки для ванны подарочный набор bonbons 360 гр
+        brand:
+          type: string
+          example: Laboratory KATRIN
+        image:
+          type: string
+          example: https://example.com/product-image.jpg
+        currentPrice:
+          type: integer
+          format: int32
+          example: 1450
+        priceChange:
+          type: integer
+          format: int32
+          example: -50
+        priceChangePercent:
+          type: number
+          format: float
+          example: -3.33
+        lastChecked:
+          type: string
+          format: date-time
+        marketplace:
+          allOf:
+            - $ref: '#/components/schemas/Products.Marketplace'
+          example: Wildberries
+        url:
+          type: string
+          example: https://www.wildberries.ru/catalog/311322319/detail.aspx
+    Products.ProductDetail:
+      type: object
+      required:
+        - id
+        - nmId
+        - name
+        - brand
+        - description
+        - image
+        - currentPrice
+        - priceChange
+        - priceChangePercent
+        - lastChecked
+        - marketplace
+        - url
+        - priceHistory
+        - notification
+      properties:
+        id:
+          type: integer
+          format: int64
+        nmId:
+          type: integer
+          format: int64
+        name:
+          type: string
+          example: Бомбочки для ванны подарочный набор bonbons 360 гр
+        brand:
+          type: string
+          example: Laboratory KATRIN
+        description:
+          type: string
+          example: МЫ УЛУЧШИЛИ УПАКОВКУ!!!...
+        image:
+          type: string
+          example: https://example.com/product-image.jpg
+        currentPrice:
+          type: integer
+          format: int32
+          example: 1450
+        priceChange:
+          type: integer
+          format: int32
+          example: -50
+        priceChangePercent:
+          type: number
+          format: float
+          example: -3.33
+        lastChecked:
+          type: string
+          format: date-time
+        marketplace:
+          allOf:
+            - $ref: '#/components/schemas/Products.Marketplace'
+          example: Wildberries
+        url:
+          type: string
+          example: https://www.wildberries.ru/catalog/311322319/detail.aspx
+        priceHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/Products.PriceHistory'
+        notification:
+          $ref: '#/components/schemas/Products.Notification'
+    Products.ProductForUpdate:
+      type: object
+      required:
+        - url
+        - marketplace
+      properties:
+        url:
+          type: string
+        marketplace:
+          $ref: '#/components/schemas/Products.Marketplace'
+    Products.ProductPreview:
+      type: object
+      required:
+        - title
+        - image
+        - currentPrice
+      properties:
+        title:
+          type: string
+          example: Бомбочки для ванны подарочный набор bonbons 360 гр
+        image:
+          type: string
+          example: https://example.com/product-image.jpg
+        currentPrice:
+          type: integer
+          format: int32
+          example: 1450
+    ServiceConnection.ConnectRequest:
+      type: object
+      required:
+        - id
+        - service
+        - internalId
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 123456789
+        service:
+          allOf:
+            - $ref: '#/components/schemas/ServiceConnection.Service'
+          example: telegram
+        internalId:
+          type: integer
+          format: int64
+          example: 987654321
+    ServiceConnection.NotificationRequest:
+      type: object
+      required:
+        - chatId
+        - productName
+        - productPhotoUrl
+        - productUrl
+      properties:
+        chatId:
+          type: integer
+          format: int64
+          example: 123456789
+        productName:
+          type: string
+          example: Бомбочки для ванны подарочный набор bonbons 360 гр
+        productPhotoUrl:
+          type: string
+          example: https://example.com/product-image.jpg
+        productUrl:
+          type: string
+          example: https://example.com/product12312123
+    ServiceConnection.Service:
+      type: string
+      enum:
+        - telegram
+    ServiceConnection.StatusCheckRequest:
+      type: object
+      required:
+        - id
+        - service
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 123456789
+        service:
+          allOf:
+            - $ref: '#/components/schemas/ServiceConnection.Service'
+          example: telegram
+servers:
+  - url: https://ph.com
+    description: PriceHunter server endpoint
+    variables: {}
