@@ -33,11 +33,12 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     //testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     //testImplementation("org.springframework.boot:spring-boot-starter-jdbc-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-web-test")
+    //testImplementation("org.springframework.boot:spring-boot-starter-web-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     //kafka
     implementation("org.springframework.kafka:spring-kafka")
     implementation(project(":core"))
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1")
 }
 
 tasks.test {

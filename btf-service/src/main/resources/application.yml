@@ -1,6 +1,10 @@
 spring:
   application:
-    name: pp
+    name: btf-service
+  kafka:
+    bootstrap-servers: localhost:9092
+server:
+  port: 8080
 
 #  datasource:
 #    url: jdbc:postgresql://localhost:5432/your_database_name

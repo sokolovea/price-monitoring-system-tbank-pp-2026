@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.core.*;
 
+import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 import ru.tbank.dto.UpdateProductDto;
@@ -20,6 +20,9 @@ import java.util.Map;
 
 @Configuration
 public class KafkaConfig {
+
+    private static final String GROUP = "product-group";
+    private static final String PACKAGE = "ru.tbank.dto";
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -46,12 +49,12 @@ public class KafkaConfig {
         JacksonJsonDeserializer<UpdateProductDto> deserializer =
                 new JacksonJsonDeserializer<>(UpdateProductDto.class);
 
-        deserializer.addTrustedPackages("ru.tbank.dto");
+        deserializer.addTrustedPackages(PACKAGE);
 
         Map<String, Object> config = new HashMap<>();
 
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, "product-group");
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP);
 
         return new DefaultKafkaConsumerFactory<>(
                 config,
