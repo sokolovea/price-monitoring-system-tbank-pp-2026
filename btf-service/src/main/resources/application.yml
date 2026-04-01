@@ -1,28 +1,222 @@
-spring:
-  application:
-    name: pp
+databaseChangeLog:
+  - changeSet:
+      id: 1-create-user
+      author: st
+      changes:
+        - createTable:
+            tableName: "user"
+            schemaName: public
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
 
-  config:
-    import: optional:file:application-local.yml
+  - changeSet:
+      id: 2-create-product
+      author: st
+      changes:
+        - createTable:
+            tableName: product
+            schemaName: public
+            columns:
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: marketplace
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: url
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: article
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_tracked
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: option_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: option_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: brand
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: image
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
 
-  datasource:
-    url: ${btf.spring.datasource.url}
-    username: ${btf.spring.datasource.username}
-    password: ${btf.spring.datasource.password}
-    driver-class-name: org.postgresql.Driver
+  - changeSet:
+      id: 3-create-product-price
+      author: st
+      changes:
+        - createTable:
+            tableName: product_price
+            schemaName: public
+            columns:
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: check_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: DECIMAL(38,2)
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            constraintName: pk_product_price
+            tableName: product_price
+            schemaName: public
+            columnNames: product_id, check_date
+        - addForeignKeyConstraint:
+            constraintName: fk_product_price_product
+            baseTableName: product_price
+            baseTableSchema: public
+            baseColumnNames: product_id
+            referencedTableName: product
+            referencedTableSchema: public
+            referencedColumnNames: product_id
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    show-sql: true
+  - changeSet:
+      id: 4-create-user-products
+      author: st
+      changes:
+        - createTable:
+            tableName: user_products
+            schemaName: public
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: notify
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: threshold_price
+                  type: DECIMAL(38,2)
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            constraintName: pk_user_products
+            tableName: user_products
+            schemaName: public
+            columnNames: user_id, product_id
+        - addForeignKeyConstraint:
+            constraintName: fk_user_products_user
+            baseTableName: user_products
+            baseTableSchema: public
+            baseColumnNames: user_id
+            referencedTableName: "user"
+            referencedTableSchema: public
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            constraintName: fk_user_products_product
+            baseTableName: user_products
+            baseTableSchema: public
+            baseColumnNames: product_id
+            referencedTableName: product
+            referencedTableSchema: public
+            referencedColumnNames: product_id
 
-jwt:
-  secret: ${btf.jwt.secret}
-  expiration-ms: ${btf.jwt.expiration-ms}
-
-server:
-  port: 8081
+  - changeSet:
+      id: 5-create-user-notification
+      author: st
+      changes:
+        - createTable:
+            tableName: user_notification
+            schemaName: public
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: notification_service
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: external_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            constraintName: pk_user_notification
+            tableName: user_notification
+            schemaName: public
+            columnNames: user_id, notification_service
+        - addForeignKeyConstraint:
+            constraintName: fk_user_notification_user
+            baseTableName: user_notification
+            baseTableSchema: public
+            baseColumnNames: user_id
+            referencedTableName: "user"
+            referencedTableSchema: public
+            referencedColumnNames: id
