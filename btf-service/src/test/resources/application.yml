@@ -11,20 +11,14 @@ spring:
     password: ${btf.spring.datasource.password}
     driver-class-name: org.postgresql.Driver
 
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
-    enabled: true
-    default-schema: public
-    drop-first: false
-
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-    show-sql: false
+    show-sql: true
 
 jwt:
   secret: ${btf.jwt.secret}

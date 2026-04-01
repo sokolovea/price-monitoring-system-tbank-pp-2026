@@ -1,0 +1,12 @@
+btf:
+  spring:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/price_hunter
+      username: postgres
+      password: 1
+    liquibase:
+      enabled: true
+
+  jwt:
+    secret: "lQL7oDPbrfg94gUDqOL35Il6TN00L0r1J4jCnN63nlxs49Gtw1Ym7JndqJyHBSIom93YhjwG397vEnI6xEmJEA8vrFQIR0z8Fv0IqIgxM"
+    expiration-ms: 1800000
