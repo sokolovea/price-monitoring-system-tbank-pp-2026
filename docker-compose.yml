@@ -1,6 +1,30 @@
 volumes:
   cloudpub-config:
 services:
+  btf-service:
+    container_name: 'btf-service'
+    image: 'btf-service'
+    build:
+      context: ./
+      dockerfile: 'btf-service/Dockerfile'
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    restart: on-failure
+
+  integration-service:
+    container_name: 'integration-service'
+    image: 'integration-service'
+    build:
+      context: ./
+      dockerfile: 'integration-service/Dockerfile'
+    env_file:
+      - .env
+    ports:
+      - "8081:8081"
+    restart: on-failure
+
   notification-service:
     container_name: 'notification-service'
     image: 'notification-service'
@@ -14,7 +38,7 @@ services:
       - BOT_TOKEN=${BOT_TOKEN}
       - BOT_WEBHOOK_PATH=${BOT_WEBHOOK_PATH}
     ports:
-      - "8081:8081"
+      - "8082:8082"
     restart: on-failure
 
   cloudpub:
@@ -22,9 +46,27 @@ services:
     restart: unless-stopped
     environment:
       - TOKEN=${CLOUDPUB_API_KEY}
-      - HTTP=notification-service:8081
+      - HTTP=notification-service:8082
     command: run
     depends_on:
       - notification-service
     volumes:
       - cloudpub-config:/home/cloudpub
+
+  broker:
+    image: apache/kafka-native:latest
+    container_name: broker
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
