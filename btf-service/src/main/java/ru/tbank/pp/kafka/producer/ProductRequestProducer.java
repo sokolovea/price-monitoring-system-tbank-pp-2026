@@ -3,9 +3,7 @@ package ru.tbank.pp.kafka.producer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import ru.tbank.dto.UpdateProductPriceRequestDto;
-
-import java.util.List;
+import ru.tbank.dto.UpdateProductPriceRequestDtoList;
 
 @Service
 @RequiredArgsConstructor
@@ -14,7 +12,7 @@ public class ProductRequestProducer {
 
     private static final String TOPIC = "product-update-request";
 
-    public void produce(List<UpdateProductPriceRequestDto> updateProductPriceRequestDtoList) {
+    public void produce(UpdateProductPriceRequestDtoList updateProductPriceRequestDtoList) {
         kafkaTemplate.send(TOPIC, updateProductPriceRequestDtoList);
     }
 }
