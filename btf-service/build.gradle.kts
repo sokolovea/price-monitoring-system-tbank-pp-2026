@@ -27,17 +27,21 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
-    implementation("jakarta.validation:jakarta.validation-api:4.0.0-M1")
-    implementation("jakarta.annotation:jakarta.annotation-api:3.0.0")
-    implementation("io.swagger.core.v3:swagger-annotations:2.2.45")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1")
-
-    //testImplementation("org.springframework.boot:spring-boot-starter-web-test")
+  implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-liquibase")
+	implementation("io.jsonwebtoken:jjwt:0.13.0")
+	compileOnly("org.projectlombok:lombok")
+	runtimeOnly("org.postgresql:postgresql")
+	annotationProcessor("org.projectlombok:lombok")
+	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-jdbc-test")
+  implementation("jakarta.validation:jakarta.validation-api:4.0.0-M1")
+  implementation("jakarta.annotation:jakarta.annotation-api:3.0.0")
+  implementation("io.swagger.core.v3:swagger-annotations:2.2.45")
+	testImplementation("org.springframework.boot:spring-boot-starter-web-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    implementation(project(":core"))
-    implementation("org.springframework.kafka:spring-kafka")
+  implementation(project(":core"))
+  implementation("org.springframework.kafka:spring-kafka")
 }
 
 openApiGenerate {
