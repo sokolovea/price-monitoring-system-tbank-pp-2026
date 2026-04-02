@@ -13,7 +13,6 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
-import ru.tbank.dto.UpdateProductDto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +27,7 @@ public class KafkaConfig {
     private String bootstrapServers;
 
     @Bean
-    public ProducerFactory<String, UpdateProductDto> producerFactory() {
+    public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> config = new HashMap<>();
 
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -39,15 +38,15 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, UpdateProductDto> kafkaTemplate() {
+    public KafkaTemplate<String, Object> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
-    public ConsumerFactory<String, UpdateProductDto> consumerFactory() {
+    public ConsumerFactory<String, Object> consumerFactory() {
 
-        JacksonJsonDeserializer<UpdateProductDto> deserializer =
-                new JacksonJsonDeserializer<>(UpdateProductDto.class);
+        JacksonJsonDeserializer<Object> deserializer =
+                new JacksonJsonDeserializer<>(Object.class);
 
         deserializer.addTrustedPackages(PACKAGE);
 
@@ -64,8 +63,8 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, UpdateProductDto> kafkaListenerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, UpdateProductDto> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(consumerFactory());

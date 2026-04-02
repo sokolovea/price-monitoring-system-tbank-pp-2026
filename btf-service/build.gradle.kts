@@ -32,8 +32,9 @@ dependencies {
     implementation("jakarta.validation:jakarta.validation-api:4.0.0-M1")
     implementation("jakarta.annotation:jakarta.annotation-api:3.0.0")
     implementation("io.swagger.core.v3:swagger-annotations:2.2.45")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1")
 
-	//testImplementation("org.springframework.boot:spring-boot-starter-web-test")
+    //testImplementation("org.springframework.boot:spring-boot-starter-web-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation(project(":core"))
     implementation("org.springframework.kafka:spring-kafka")

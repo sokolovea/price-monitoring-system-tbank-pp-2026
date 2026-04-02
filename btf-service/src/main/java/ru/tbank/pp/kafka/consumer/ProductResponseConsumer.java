@@ -3,24 +3,24 @@ package ru.tbank.pp.kafka.consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.tbank.dto.UpdateProductDto;
+import ru.tbank.dto.UpdateProductPriceResponseDto;
 
 @Slf4j
 @Component
-public class ProductConsumer {
+public class ProductResponseConsumer {
     private static final String GROUP = "product-group";
-    private static final String TOPIC = "product-update";
+    private static final String TOPIC = "product-update-response";
 
     @KafkaListener(
             topics = TOPIC,
             groupId = GROUP,
             containerFactory = "kafkaListenerFactory"
     )
-    public void consume(UpdateProductDto updateProductDto) {
+    public void consume(UpdateProductPriceResponseDto updateProductPriceResponseDto) {
         log.info("Consumer received update product \nID: {}, \nPrice: {}, \nDate: {}",
-                updateProductDto.getId(),
-                updateProductDto.getPrice(),
-                updateProductDto.getDate()
+                updateProductPriceResponseDto.getId(),
+                updateProductPriceResponseDto.getPrice(),
+                updateProductPriceResponseDto.getDate()
         );
     }
 }
