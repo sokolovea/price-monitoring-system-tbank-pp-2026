@@ -272,8 +272,8 @@ components:
           type: boolean
           example: true
         thresholdPrice:
-          type: integer
-          format: int32
+          type: number
+          format: decimal
           example: 1400
     Products.PriceHistory:
       type: object
@@ -282,8 +282,8 @@ components:
         - date
       properties:
         price:
-          type: integer
-          format: int32
+          type: number
+          format: decimal
           example: 1450
         date:
           type: string
@@ -319,12 +319,12 @@ components:
           type: string
           example: https://example.com/product-image.jpg
         currentPrice:
-          type: integer
-          format: int32
+          type: number
+          format: decimal
           example: 1450
         priceChange:
-          type: integer
-          format: int32
+          type: number
+          format: decimal
           example: -50
         priceChangePercent:
           type: number
@@ -377,12 +377,12 @@ components:
           type: string
           example: https://example.com/product-image.jpg
         currentPrice:
-          type: integer
-          format: int32
+          type: number
+          format: decimal
           example: 1450
         priceChange:
-          type: integer
-          format: int32
+          type: number
+          format: decimal
           example: -50
         priceChangePercent:
           type: number
@@ -428,8 +428,8 @@ components:
           type: string
           example: https://example.com/product-image.jpg
         currentPrice:
-          type: integer
-          format: int32
+          type: number
+          format: decimal
           example: 1450
     ServiceConnection.ConnectRequest:
       type: object
