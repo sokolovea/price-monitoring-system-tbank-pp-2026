@@ -1,6 +1,10 @@
 spring:
   application:
-    name: pp
+    name: btf-service
+  kafka:
+    bootstrap-servers: localhost:9092
+server:
+  port: 8080
 
   config:
     import: optional:file:application-local.yml
@@ -29,6 +33,3 @@ spring:
 jwt:
   secret: ${btf.jwt.secret}
   expiration-ms: ${btf.jwt.expiration-ms}
-
-server:
-  port: 8081
