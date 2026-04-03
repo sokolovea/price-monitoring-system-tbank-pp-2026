@@ -1,0 +1,195 @@
+databaseChangeLog:
+  - changeSet:
+      id: 6-insert-initial-data
+      author: st
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - insert:
+            tableName: "user"
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: 1
+              - column:
+                  name: email
+                  value: "alice@example.com"
+              - column:
+                  name: password
+                  value: "$2a$12$HIOxG23bj2rt54jeESZHx.pBxgqOiQCxOecUpeIQ9lEVu69bMspfC"
+              - column:
+                  name: role
+                  value: "USER"
+        - insert:
+            tableName: "user"
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: 2
+              - column:
+                  name: email
+                  value: "bob@example.com"
+              - column:
+                  name: password
+                  value: "$2a$12$HIOxG23bj2rt54jeESZHx.pBxgqOiQCxOecUpeIQ9lEVu69bMspfC"
+              - column:
+                  name: role
+                  value: "USER"
+
+        - insert:
+            tableName: "product"
+            columns:
+              - column:
+                  name: product_id
+                  valueNumeric: 1
+              - column:
+                  name: marketplace
+                  value: "WB"
+              - column:
+                  name: url
+                  value: "https://www.amazon.com/product1"
+              - column:
+                  name: article
+                  valueNumeric: 1001
+              - column:
+                  name: description
+                  value: "Product 1 description"
+              - column:
+                  name: is_tracked
+                  valueBoolean: true
+              - column:
+                  name: option_name
+                  value: "Color"
+              - column:
+                  name: option_id
+                  valueNumeric: 101
+              - column:
+                  name: name
+                  value: "Product 1"
+              - column:
+                  name: brand
+                  value: "BrandA"
+              - column:
+                  name: image
+                  value: "https://images.amazon.com/product1.jpg"
+
+        - insert:
+            tableName: "product"
+            columns:
+              - column:
+                  name: product_id
+                  valueNumeric: 2
+              - column:
+                  name: marketplace
+                  value: "OZON"
+              - column:
+                  name: url
+                  value: "https://www.ebay.com/product2"
+              - column:
+                  name: article
+                  valueNumeric: 2002
+              - column:
+                  name: description
+                  value: "Product 2 description"
+              - column:
+                  name: is_tracked
+                  valueBoolean: false
+              - column:
+                  name: option_name
+                  value: "Size"
+              - column:
+                  name: option_id
+                  valueNumeric: 202
+              - column:
+                  name: name
+                  value: "Product 2"
+              - column:
+                  name: brand
+                  value: "BrandB"
+              - column:
+                  name: image
+                  value: "https://images.ebay.com/product2.jpg"
+
+        - insert:
+            tableName: "product_price"
+            columns:
+              - column:
+                  name: product_id
+                  valueNumeric: 1
+              - column:
+                  name: check_date
+                  valueDate: "2026-04-03T10:00:00"
+              - column:
+                  name: price
+                  valueNumeric: 999.99
+
+        - insert:
+            tableName: "product_price"
+            columns:
+              - column:
+                  name: product_id
+                  valueNumeric: 2
+              - column:
+                  name: check_date
+                  valueDate: "2026-04-03T10:00:00"
+              - column:
+                  name: price
+                  valueNumeric: 499.49
+
+        - insert:
+            tableName: "user_products"
+            columns:
+              - column:
+                  name: user_id
+                  valueNumeric: 1
+              - column:
+                  name: product_id
+                  valueNumeric: 1
+              - column:
+                  name: notify
+                  valueBoolean: true
+              - column:
+                  name: threshold_price
+                  valueNumeric: 950.00
+
+        - insert:
+            tableName: "user_products"
+            columns:
+              - column:
+                  name: user_id
+                  valueNumeric: 2
+              - column:
+                  name: product_id
+                  valueNumeric: 2
+              - column:
+                  name: notify
+                  valueBoolean: false
+              - column:
+                  name: threshold_price
+                  valueNumeric: 450.00
+
+        - insert:
+            tableName: "user_notification"
+            columns:
+              - column:
+                  name: user_id
+                  valueNumeric: 1
+              - column:
+                  name: notification_service
+                  value: "EMAIL"
+              - column:
+                  name: external_id
+                  value: "alice@example.com"
+
+        - insert:
+            tableName: "user_notification"
+            columns:
+              - column:
+                  name: user_id
+                  valueNumeric: 2
+              - column:
+                  name: notification_service
+                  value: "SMS"
+              - column:
+                  name: external_id
+                  value: "+1234567890"
