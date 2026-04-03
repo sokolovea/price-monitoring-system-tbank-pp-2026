@@ -1,6 +1,7 @@
 rootProject.name = 'pp'
 
 include 'notification-service'
+include 'btf-service'
 include 'integration-service'
 include 'btf-service'
 include 'core'
