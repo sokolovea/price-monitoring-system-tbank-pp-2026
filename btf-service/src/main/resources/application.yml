@@ -3,24 +3,18 @@ spring:
     name: btf-service
   kafka:
     bootstrap-servers: localhost:9092
-server:
-  port: 8080
-
   config:
     import: optional:file:application-local.yml
-
   datasource:
     url: ${btf.spring.datasource.url}
     username: ${btf.spring.datasource.username}
     password: ${btf.spring.datasource.password}
     driver-class-name: org.postgresql.Driver
-
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
     default-schema: public
     drop-first: false
-
   jpa:
     hibernate:
       ddl-auto: none
@@ -29,6 +23,9 @@ server:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: false
+
+server:
+  port: 8080
 
 jwt:
   secret: ${btf.jwt.secret}
