@@ -7,10 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
 import ru.tbank.pp.api.ProductsApi;
-import ru.tbank.pp.model.ProductsNotification;
-import ru.tbank.pp.model.ProductsProduct;
-import ru.tbank.pp.model.ProductsProductForUpdate;
-import ru.tbank.pp.model.ProductsProductPreview;
+import ru.tbank.pp.model.*;
 import ru.tbank.pp.service.ProductService;
 
 import java.util.List;
@@ -42,13 +39,13 @@ public class ProductApiController implements ProductsApi {
     }
 
     @Override
-    public ResponseEntity<ProductsProduct> productsGetProductById(Long productId) {
-        return ProductsApi.super.productsGetProductById(productId);
+    public ResponseEntity<ProductsProductDetail> productsGetProductById(Long productId) {
+        return ResponseEntity.of(Optional.of(productService.getProductDetail(productId)));
     }
 
     @Override
     public ResponseEntity<List<ProductsProduct>> productsGetProducts() {
-        return ResponseEntity.of(Optional.ofNullable(productService.getAllUserProducts()));
+        return ResponseEntity.of(Optional.of(productService.getAllUserProducts()));
     }
 
     @Override

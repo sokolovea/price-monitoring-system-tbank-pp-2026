@@ -11,4 +11,5 @@ import java.util.List;
 public interface ProductPriceRepository extends JpaRepository<ProductPrice, ProductPriceId> {
 
     List<ProductPrice> findByProductIdOrderByIdCheckDateDesc(Long productId);
+
 }

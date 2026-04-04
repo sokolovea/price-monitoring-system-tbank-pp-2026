@@ -6,6 +6,7 @@ import ru.tbank.pp.entity.ProductPrice;
 import ru.tbank.pp.repository.ProductPriceRepository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -14,5 +15,9 @@ public class ProductPriceService {
 
     public BigDecimal getCurrentPrice(Long productId) {
         return productPriceRepository.findByProductIdOrderByIdCheckDateDesc(productId).getFirst().getPrice();
+    }
+
+    public List<ProductPrice> getProductPrices(Long productId) {
+        return productPriceRepository.findByProductIdOrderByIdCheckDateDesc(productId);
     }
 }
