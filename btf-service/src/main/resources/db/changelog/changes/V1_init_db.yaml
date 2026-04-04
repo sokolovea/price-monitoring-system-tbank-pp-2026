@@ -160,8 +160,6 @@ databaseChangeLog:
               - column:
                   name: threshold_price
                   type: DECIMAL(38,2)
-                  constraints:
-                    nullable: false
         - addPrimaryKey:
             constraintName: pk_user_products
             tableName: user_products

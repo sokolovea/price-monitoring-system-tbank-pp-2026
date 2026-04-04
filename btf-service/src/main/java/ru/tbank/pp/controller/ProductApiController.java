@@ -29,13 +29,14 @@ public class ProductApiController implements ProductsApi {
     }
 
     @Override
-    public ResponseEntity<ProductsProduct> productsAddProduct(String body) {
-        return ProductsApi.super.productsAddProduct(body);
+    public ResponseEntity<ProductsProduct> productsAddProduct(String url) {
+        return ResponseEntity.of(Optional.of(productService.addProduct(url)));
     }
 
     @Override
     public ResponseEntity<Void> productsDeleteProduct(Long productId) {
-        return ProductsApi.super.productsDeleteProduct(productId);
+        productService.deleteProduct(productId);
+        return ResponseEntity.ok().build();
     }
 
     @Override
@@ -49,17 +50,17 @@ public class ProductApiController implements ProductsApi {
     }
 
     @Override
-    public ResponseEntity<ProductsNotification> productsNotificationSubscribe(Long productId, ProductsNotification productsNotification) {
-        return ProductsApi.super.productsNotificationSubscribe(productId, productsNotification);
+    public ResponseEntity<ProductsNotification> productsNotificationSubscribe(Long productId, ProductsNotificationUpdate productsNotificationUpdate) {
+        return ResponseEntity.of(Optional.of(productService.subscribeNotification(productId, productsNotificationUpdate)));
     }
 
     @Override
     public ResponseEntity<Boolean> productsNotificationUnSubscribe(Long productId) {
-        return ProductsApi.super.productsNotificationUnSubscribe(productId);
+        return ResponseEntity.ok(productService.unsubscribeNotification(productId));
     }
 
     @Override
-    public ResponseEntity<ProductsProductPreview> productsProductPreview(String body) {
-        return ProductsApi.super.productsProductPreview(body);
+    public ResponseEntity<ProductsProductPreview> productsProductPreview(String url) {
+        return  ResponseEntity.of(Optional.of(productService.getProductPreview(url)));
     }
 }

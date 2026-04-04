@@ -31,6 +31,6 @@ public class UserProduct {
     @Column(nullable = false)
     private boolean notify;
 
-    @Column(name = "threshold_price", nullable = false)
+    @Column(name = "threshold_price")
     private BigDecimal thresholdPrice;
 }

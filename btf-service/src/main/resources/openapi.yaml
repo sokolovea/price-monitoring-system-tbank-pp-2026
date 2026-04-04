@@ -154,7 +154,7 @@ paths:
       tags:
         - Products
   /products/{productId}/notification:
-    post:
+    patch:
       operationId: Products_notificationSubscribe
       summary: Подписка на уведомление по почте на определенный товар с порогом цены для срабатывания
       parameters:
@@ -178,9 +178,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Products.Notification'
+              $ref: '#/components/schemas/Products.NotificationUpdate'
   /products/{productId}/notification/unsubscribe:
-    delete:
+    patch:
       operationId: Products_notificationUnSubscribe
       summary: Отписка от уведомлений для товара
       parameters:
@@ -267,6 +267,16 @@ components:
       required:
         - enabled
         - thresholdPrice
+      properties:
+        enabled:
+          type: boolean
+          example: true
+        thresholdPrice:
+          type: number
+          format: decimal
+          example: 1400
+    Products.NotificationUpdate:
+      type: object
       properties:
         enabled:
           type: boolean

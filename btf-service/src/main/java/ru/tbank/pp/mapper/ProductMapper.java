@@ -6,6 +6,7 @@ import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.model.ProductsNotification;
 import ru.tbank.pp.model.ProductsProduct;
 import ru.tbank.pp.model.ProductsProductDetail;
+import ru.tbank.pp.model.ProductsProductPreview;
 import ru.tbank.pp.service.ProductPriceService;
 
 import java.time.OffsetDateTime;
@@ -41,5 +42,13 @@ public class ProductMapper {
         productsProductDetail.setNmId(product.getId());
         productsProductDetail.setUrl(product.getUrl());
         return productsProductDetail;
+    }
+
+    public ProductsProductPreview toProductsProductPreview(Product product) {
+        var productsProductPreview = new ProductsProductPreview();
+        productsProductPreview.setCurrentPrice(productPriceService.getCurrentPrice(product.getId()));
+        productsProductPreview.setImage(product.getImage());
+        productsProductPreview.setTitle(product.getName());
+        return productsProductPreview;
     }
 }
