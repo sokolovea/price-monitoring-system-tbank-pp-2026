@@ -1,15 +1,16 @@
 package ru.tbank.pp.integration.dto;
 
+import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import ru.tbank.pp.integration.provider.ProviderType;
 
 @Data
-@RequiredArgsConstructor
+@Builder
 public class ProductInfo {
     String name;
-    String description;
+    String category;
     String brand;
+    String rating;
 
     String url;
     String sku;
