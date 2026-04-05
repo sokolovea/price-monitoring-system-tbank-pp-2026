@@ -2,15 +2,11 @@ package ru.tbank.pp.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.tbank.pp.entity.Product;
-import ru.tbank.pp.entity.User;
 import ru.tbank.pp.entity.UserProduct;
 import ru.tbank.pp.entity.UserProductId;
-import ru.tbank.pp.exception.AuthException;
 import ru.tbank.pp.exception.ProductNotFoundException;
-import ru.tbank.pp.exception.UserNotFoundException;
 import ru.tbank.pp.mapper.ProductMapper;
 import ru.tbank.pp.mapper.ProductPriceMapper;
 import ru.tbank.pp.mapper.UserProductMapper;
@@ -27,6 +23,7 @@ public class ProductService {
     private final UserProductRepository userProductRepository;
 
     private final ProductPriceService productPriceService;
+    private final UserService userService;
 
     private final ProductMapper productMapper;
     private final ProductPriceMapper productPriceMapper;
@@ -34,7 +31,7 @@ public class ProductService {
 
 
     public List<ProductsProduct> getAllUserProducts() {
-        var user = getUser();
+        var user = userService.getUserFromCridentials();
         var userId = user.getId();
 
         var userProducts = userProductRepository.findByUserId(userId);
@@ -45,7 +42,7 @@ public class ProductService {
     }
 
     public ProductsProductDetail getProductDetail(Long productId) {
-        var user = getUser();
+        var user = userService.getUserFromCridentials();
 
         var productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
@@ -71,7 +68,7 @@ public class ProductService {
 
     @Transactional
     public ProductsProduct addProduct(String productUrl) {
-        var user = getUser();
+        var user = userService.getUserFromCridentials();
 
         var product = getProductByUrl(productUrl);
 
@@ -98,7 +95,7 @@ public class ProductService {
 
     @Transactional
     public void deleteProduct(Long productId) {
-        var user = getUser();
+        var user = userService.getUserFromCridentials();
 
         var userProductId = new UserProductId();
         userProductId.setUserId(user.getId());
@@ -109,7 +106,7 @@ public class ProductService {
 
     @Transactional
     public ProductsNotification subscribeNotification(Long productId, ProductsNotificationUpdate productsNotificationUpdate) {
-        var user = getUser();
+        var user = userService.getUserFromCridentials();
 
         var userProduct = getUserProduct(productId, user.getId());
 
@@ -127,7 +124,7 @@ public class ProductService {
 
     @Transactional
     public Boolean unsubscribeNotification(Long productId){
-        var user = getUser();
+        var user = userService.getUserFromCridentials();
         var userProduct = getUserProduct(productId, user.getId());
 
         userProduct.setNotify(Boolean.FALSE);
@@ -135,17 +132,7 @@ public class ProductService {
         return userProductRepository.save(userProduct).isNotify();
     }
 
-    private User getUser() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
-            throw new AuthException("Authentication object is null");
-        }
-        var user = (User) auth.getPrincipal();
-        if (user == null) {
-            throw new UserNotFoundException("User not found");
-        }
-        return user;
-    }
+
 
     private UserProduct getUserProduct(Long productId,Long userId) {
         var userProductId = new UserProductId();

@@ -2,10 +2,7 @@ package ru.tbank.pp.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.NativeWebRequest;
 import ru.tbank.pp.api.ProductsApi;
 import ru.tbank.pp.model.*;
 import ru.tbank.pp.service.ProductService;
@@ -17,11 +14,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductApiController implements ProductsApi {
     private final ProductService productService;
-
-    @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return ProductsApi.super.getRequest();
-    }
 
     @Override
     public ResponseEntity<List<ProductsProductForUpdate>> productsGetProductsForUpdate() {

@@ -6,6 +6,7 @@ tags:
   - name: Products
   - name: Authentication
   - name: ServiceConnection
+  - name: User
 paths:
   /auth/login:
     post:
@@ -235,6 +236,21 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ServiceConnection.ConnectRequest'
+  /user:
+    get:
+      operationId: User_getUserId
+      summary: Возвращает id пользователя
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+      tags:
+        - User
 components:
   schemas:
     Authentication.AuthRequest:
