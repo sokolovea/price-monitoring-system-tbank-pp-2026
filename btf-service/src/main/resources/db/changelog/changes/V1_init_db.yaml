@@ -201,8 +201,8 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: external_id
-                  type: VARCHAR(255)
+                  name: internal_id
+                  type: BIGINT
                   constraints:
                     nullable: false
         - addPrimaryKey:

@@ -178,8 +178,8 @@ databaseChangeLog:
                   name: notification_service
                   value: "EMAIL"
               - column:
-                  name: external_id
-                  value: "alice@example.com"
+                  name: internal_id
+                  value: "123456"
 
         - insert:
             tableName: "user_notification"
@@ -191,5 +191,5 @@ databaseChangeLog:
                   name: notification_service
                   value: "SMS"
               - column:
-                  name: external_id
+                  name: internal_id
                   value: "+1234567890"
