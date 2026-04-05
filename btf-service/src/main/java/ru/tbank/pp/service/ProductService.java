@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.entity.User;
 import ru.tbank.pp.entity.UserProduct;
 import ru.tbank.pp.entity.UserProductId;
@@ -33,14 +34,7 @@ public class ProductService {
 
 
     public List<ProductsProduct> getAllUserProducts() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
-            throw new AuthException("Authentication object is null");
-        }
-        var user = (User) auth.getPrincipal();
-        if (user == null) {
-            throw new UserNotFoundException("User not found");
-        }
+        var user = getUser();
         var userId = user.getId();
 
         var userProducts = userProductRepository.findByUserId(userId);
@@ -51,14 +45,7 @@ public class ProductService {
     }
 
     public ProductsProductDetail getProductDetail(Long productId) {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
-            throw new AuthException("Authentication object is null");
-        }
-        var user = (User) auth.getPrincipal();
-        if (user == null) {
-            throw new UserNotFoundException("User not found");
-        }
+        var user = getUser();
 
         var productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
@@ -71,18 +58,9 @@ public class ProductService {
                 .map(productPriceMapper::mapToProductsPriceHistory)
                 .toList();
 
-        var userProductId = new UserProductId();
-        userProductId.setUserId(user.getId());
-        userProductId.setProductId(productId);
+        var userProduct = getUserProduct(productId, user.getId());
 
-        var userProductOptional = userProductRepository.findById(userProductId);
-        if (userProductOptional.isEmpty()) {
-            throw new ProductNotFoundException(
-                    String.format("Product with id '%s' not found for user '%s'", productId, user.getId())
-            );
-        }
-
-        var productsNotification = userProductMapper.toProductsNotification(userProductOptional.get());
+        var productsNotification = userProductMapper.toProductsNotification(userProduct);
 
         var productDetail = productMapper.toProductsProductDetail(product);
         productDetail.setPriceHistory(priceHistory);
@@ -93,22 +71,9 @@ public class ProductService {
 
     @Transactional
     public ProductsProduct addProduct(String productUrl) {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
-            throw new AuthException("Authentication object is null");
-        }
-        var user = (User) auth.getPrincipal();
-        if (user == null) {
-            throw new UserNotFoundException("User not found");
-        }
+        var user = getUser();
 
-        var productOptional = productRepository.findByUrl(productUrl);
-
-        if (productOptional.isEmpty()) {
-            //todo добавление первоначальной информации о товаре
-        }
-
-        var product = productOptional.get();
+        var product = getProductByUrl(productUrl);
 
         var userProductId = new UserProductId();
         userProductId.setUserId(user.getId());
@@ -126,27 +91,14 @@ public class ProductService {
     }
 
     public ProductsProductPreview getProductPreview(String productUrl) {
-        var productOptional = productRepository.findByUrl(productUrl);
-
-        if (productOptional.isEmpty()) {
-            //todo добавление первоначальной информации о товаре
-        }
-
-        var product = productOptional.get();
+        var product = getProductByUrl(productUrl);
 
         return productMapper.toProductsProductPreview(product);
     }
 
     @Transactional
     public void deleteProduct(Long productId) {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
-            throw new AuthException("Authentication object is null");
-        }
-        var user = (User) auth.getPrincipal();
-        if (user == null) {
-            throw new UserNotFoundException("User not found");
-        }
+        var user = getUser();
 
         var userProductId = new UserProductId();
         userProductId.setUserId(user.getId());
@@ -157,27 +109,10 @@ public class ProductService {
 
     @Transactional
     public ProductsNotification subscribeNotification(Long productId, ProductsNotificationUpdate productsNotificationUpdate) {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
-            throw new AuthException("Authentication object is null");
-        }
-        var user = (User) auth.getPrincipal();
-        if (user == null) {
-            throw new UserNotFoundException("User not found");
-        }
+        var user = getUser();
 
-        var userProductId = new UserProductId();
-        userProductId.setUserId(user.getId());
-        userProductId.setProductId(productId);
+        var userProduct = getUserProduct(productId, user.getId());
 
-        var userProductOptional = userProductRepository.findById(userProductId);
-        if (userProductOptional.isEmpty()) {
-            throw new ProductNotFoundException(
-                    String.format("Product with id '%s' not found for user '%s'", productId, user.getId())
-            );
-        }
-
-        var userProduct = userProductOptional.get();
         userProduct.setNotify(Boolean.TRUE.equals(productsNotificationUpdate.getEnabled()));
         userProduct.setThresholdPrice(productsNotificationUpdate.getThresholdPrice());
 
@@ -192,6 +127,15 @@ public class ProductService {
 
     @Transactional
     public Boolean unsubscribeNotification(Long productId){
+        var user = getUser();
+        var userProduct = getUserProduct(productId, user.getId());
+
+        userProduct.setNotify(Boolean.FALSE);
+
+        return userProductRepository.save(userProduct).isNotify();
+    }
+
+    private User getUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
             throw new AuthException("Authentication object is null");
@@ -200,24 +144,31 @@ public class ProductService {
         if (user == null) {
             throw new UserNotFoundException("User not found");
         }
+        return user;
+    }
 
+    private UserProduct getUserProduct(Long productId,Long userId) {
         var userProductId = new UserProductId();
-        userProductId.setUserId(user.getId());
+        userProductId.setUserId(userId);
         userProductId.setProductId(productId);
 
         var userProductOptional = userProductRepository.findById(userProductId);
         if (userProductOptional.isEmpty()) {
             throw new ProductNotFoundException(
-                    String.format("Product with id '%s' not found for user '%s'", productId, user.getId())
+                    String.format("Product with id '%s' not found for user '%s'", productId, userId)
             );
         }
-
-        var userProduct = userProductOptional.get();
-
-        userProduct.setNotify(Boolean.FALSE);
-
-        return userProductRepository.save(userProduct).isNotify();
+        return userProductOptional.get();
     }
 
+    private Product getProductByUrl(String url) {
+        var productOptional = productRepository.findByUrl(url);
+
+        if (productOptional.isEmpty()) {
+            //todo добавление первоначальной информации о товаре
+        }
+
+        return productOptional.get();
+    }
 
 }
