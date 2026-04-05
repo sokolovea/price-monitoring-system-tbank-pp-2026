@@ -1,5 +1,5 @@
 rootProject.name = 'pp'
 
 include 'notification-service'
-//include 'integration-service'
+include 'integration-service'
 //include 'btf-service'

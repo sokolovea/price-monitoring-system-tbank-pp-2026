@@ -12,7 +12,7 @@ public class ProviderFactory {
 
     public ProductProvider getProvider(ProviderType provider) {
         return switch (provider) {
-            case Wildberries -> context.getBean(WildberriesProvider.class);
+            case WILDBERRIES -> context.getBean(WildberriesProvider.class);
         };
     }
 }

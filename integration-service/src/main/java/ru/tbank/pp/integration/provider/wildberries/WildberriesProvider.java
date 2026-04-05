@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -24,10 +25,10 @@ public class WildberriesProvider implements ProductProvider {
     private final RestClient restClient;
     private final ImageService imageService;
 
-    private String buildProductUrl(Long productId, Long optionId) {
-        final String PRODUCT_URL = "https://wildberries.ru/catalog/%d/detail.aspx";
-        final String PRODUCT_URL_WITH_OPTION = PRODUCT_URL + "?optionId=%d";
+    private static final String PRODUCT_URL = "https://wildberries.ru/catalog/%d/detail.aspx";
+    private static final String PRODUCT_URL_WITH_OPTION = PRODUCT_URL + "?optionId=%d";
 
+    private String buildProductUrl(Long productId, Long optionId) {
         if (optionId == null) {
             return String.format(PRODUCT_URL, productId);
         } else {
@@ -88,15 +89,17 @@ public class WildberriesProvider implements ProductProvider {
 
     @Override
     public ProductInfo getProductInfo(ProductReference productReference) {
-        if (productReference.getUrl() != null && !productReference.getUrl().isEmpty()) {
+        if (StringUtils.hasText(productReference.getUrl())) {
             parseUrl(productReference);
-        } else if (productReference.getSku().isEmpty()) {
+        } else if (!StringUtils.hasText(productReference.getSku())) {
             log.error("Invalid product reference: {}", productReference);
-            throw new IllegalArgumentException("Invalid product reference");
+            //TODO: add exception handler
+            throw new IllegalArgumentException("Invalid product reference: " + productReference);
         }
 
         List<ProductSchema> productList = sendProductRequest(productReference.getSku()).getProducts();
         if (productList.isEmpty()) {
+            //TODO: 404
             return null;
         }
         ProductSchema product = productList.getFirst();
@@ -106,19 +109,21 @@ public class WildberriesProvider implements ProductProvider {
                 .brand(product.getBrand())
                 .rating(product.getReviewRating().toString())
                 .sku(product.getId().toString())
-                .marketplace(ProviderType.Wildberries)
+                .marketplace(ProviderType.WILDBERRIES)
                 .imageUrl(imageService.getBigUrl(product.getId()))
                 .previewUrl(imageService.get268x328Url(product.getId()))
                 .build();
 
-        Long optionId = null;
-        if (productReference.getOptionId() != null) {
+        Long optionId;
+        if (StringUtils.hasText(productReference.getOptionId())) {
             try {
                 optionId = Long.parseLong(productReference.getOptionId());
             } catch (NumberFormatException e) {
                 log.error("Invalid option id provided: {}", productReference);
                 throw new IllegalArgumentException("Invalid option id: " + productReference.getOptionId());
             }
+        } else {
+            optionId = null;
         }
         SizeSchema option = findOption(product, optionId);
         result.setOptionId(option.getOptionId().toString());

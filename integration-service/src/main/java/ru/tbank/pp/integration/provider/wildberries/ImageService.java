@@ -1,14 +1,17 @@
 package ru.tbank.pp.integration.provider.wildberries;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+//TODO: move those to separate package
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Response {
     public MediaInfo recommend;
@@ -41,14 +44,10 @@ class ProductId {
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ImageService {
     private final RestClient restClient;
     private List<Host> hosts;
-
-    public ImageService(RestClient restClient) {
-        this.restClient = restClient;
-        setHosts();
-    }
 
     private Response sendHostRequest() {
         return restClient.get()
@@ -61,13 +60,15 @@ public class ImageService {
                 .body(Response.class);
     }
 
+    @PostConstruct
     private void setHosts() {
         Response hostRequest = sendHostRequest();
         if (hostRequest == null) {
             log.error("Couldn't request hosts");
+            // TODO: Change runtime exception
             throw new RuntimeException("Request failed");
         }
-
+        //TODO check null recommend
         Method result = hostRequest.recommend.mediabasket_route_map.stream()
                 .filter(routeMap -> routeMap.method.equals("range"))
                 .findFirst()
@@ -109,8 +110,9 @@ public class ImageService {
 
     private String getUrl(long productId, String imageSize) {
         ProductId product = parseId(productId);
-        return UriComponentsBuilder.fromUriString(findHost(product.vol))
+        return UriComponentsBuilder.newInstance()
                 .scheme("https")
+                .host(findHost(product.vol))
                 .pathSegment(
                         "vol{vol}",
                         "part{part}",
