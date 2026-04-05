@@ -82,7 +82,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/Products.Url'
   /products/for-update:
     get:
       operationId: Products_getProductsForUpdate
@@ -118,7 +118,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/Products.Url'
   /products/{productId}:
     get:
       operationId: Products_getProductById
@@ -457,6 +457,13 @@ components:
           type: number
           format: decimal
           example: 1450
+    Products.Url:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
     ServiceConnection.ConnectRequest:
       type: object
       required:

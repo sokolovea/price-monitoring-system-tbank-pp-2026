@@ -67,10 +67,10 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductsProduct addProduct(String productUrl) {
+    public ProductsProduct addProduct(ProductsUrl productUrl) {
         var user = userService.getUserFromCridentials();
 
-        var product = getProductByUrl(productUrl);
+        var product = getProductByUrl(productUrl.getUrl());
 
         var userProductId = new UserProductId();
         userProductId.setUserId(user.getId());
@@ -87,8 +87,8 @@ public class ProductService {
         return productMapper.toProductsProduct(product);
     }
 
-    public ProductsProductPreview getProductPreview(String productUrl) {
-        var product = getProductByUrl(productUrl);
+    public ProductsProductPreview getProductPreview(ProductsUrl productUrl) {
+        var product = getProductByUrl(productUrl.getUrl());
 
         return productMapper.toProductsProductPreview(product);
     }
@@ -148,8 +148,9 @@ public class ProductService {
         return userProductOptional.get();
     }
 
-    private Product getProductByUrl(String url) {
+    private Product getProductByUrl(String url) { //todo обернуть в обьект
         var productOptional = productRepository.findByUrl(url);
+        System.out.println(url);
 
         if (productOptional.isEmpty()) {
             //todo добавление первоначальной информации о товаре

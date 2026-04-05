@@ -2,6 +2,7 @@ package ru.tbank.pp.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tbank.pp.api.ProductsApi;
 import ru.tbank.pp.model.*;
@@ -21,8 +22,8 @@ public class ProductApiController implements ProductsApi {
     }
 
     @Override
-    public ResponseEntity<ProductsProduct> productsAddProduct(String url) {
-        return ResponseEntity.of(Optional.of(productService.addProduct(url)));
+    public ResponseEntity<ProductsProduct> productsAddProduct(ProductsUrl productsUrl) {
+        return ResponseEntity.of(Optional.of(productService.addProduct(productsUrl)));
     }
 
     @Override
@@ -52,7 +53,7 @@ public class ProductApiController implements ProductsApi {
     }
 
     @Override
-    public ResponseEntity<ProductsProductPreview> productsProductPreview(String url) {
-        return  ResponseEntity.of(Optional.of(productService.getProductPreview(url)));
+    public ResponseEntity<ProductsProductPreview> productsProductPreview(ProductsUrl productUrl) {
+        return  ResponseEntity.of(Optional.of(productService.getProductPreview(productUrl)));
     }
 }
