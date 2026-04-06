@@ -12,23 +12,32 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.tbank.pp.dto.RequestDto;
+import ru.tbank.pp.client.BackendClient;
+import ru.tbank.dto.NotificationRequestDto;
+import ru.tbank.pp.model.ServiceConnectionConnectRequest;
+import ru.tbank.pp.model.ServiceConnectionStatusCheckRequest;
 import ru.tbank.pp.properties.TgBotProperties;
 
 import java.util.List;
+
+import static ru.tbank.pp.model.ServiceConnectionService.TELEGRAM;
 
 @Slf4j
 @Service
 public class TgBotService extends TelegramWebhookBot {
     private final TgBotProperties tgBotProperties;
+    private final BackendClient backendClient;
 
     private static final String PRICE_DROP_CAPTION = "💰 Цена на товар '%s' упала!";
-    private static final String USER_LINK = "Привязка к пользователю %d";
+    private static final String USER_LINK = "Привязка к пользователю %d прошла успешно!";
+    private static final String USER_LINK_ERROR = "Ошибка привязки к пользователю! Такой ID уже зарегистрирован!";
     private static final String VIEW_PRODUCT_BUTTON_TEXT = "Посмотреть товар";
 
-    public TgBotService(TgBotProperties tgBotProperties) throws TelegramApiException {
+    public TgBotService(TgBotProperties tgBotProperties,
+                        BackendClient backendClient) throws TelegramApiException {
         super(tgBotProperties.getToken());
         this.tgBotProperties = tgBotProperties;
+        this.backendClient = backendClient;
         this.setWebhook(new SetWebhook(tgBotProperties.getBaseUrl()));
     }
 
@@ -49,18 +58,28 @@ public class TgBotService extends TelegramWebhookBot {
                 if (parts.length > 1) {
                     try {
                         var userId = Long.parseLong(parts[1]);
-                        sendMessage.setText(String.format(USER_LINK, userId));
+
+                        var serviceConnectionStatusCheckRequest = new ServiceConnectionStatusCheckRequest();
+                        serviceConnectionStatusCheckRequest.setService(TELEGRAM);
+                        serviceConnectionStatusCheckRequest.setId(userId);
+
+                        if (!backendClient.checkIfUserExists(serviceConnectionStatusCheckRequest)) {
+                            var serviceConnectionConnectRequest = new ServiceConnectionConnectRequest();
+                            serviceConnectionConnectRequest.setService(TELEGRAM);
+                            serviceConnectionConnectRequest.setId(userId);
+                            serviceConnectionConnectRequest.setInternalId(chatId);
+
+                            backendClient.connectUserService(serviceConnectionConnectRequest);
+                            sendMessage.setText(String.format(USER_LINK, userId));
+                        }
+                        else {
+                            sendMessage.setText(USER_LINK_ERROR);
+                        }
+
                     } catch (NumberFormatException e) {
                         log.warn("Invalid user ID format: {}", parts[1]);
                     }
-//                    todo проверка регистрации
-//                    if (backendClient.isUserRegistered(userId)) {
-//                        backendClient.connectService(userId, TELEGRAM, chatId);
-//                        sendMessage.setText("Пользователь привязан");
-//                    }
-//                    else {
-//                        sendMessage.setText("Ошибка в привязке к пользователю");
-//                    }
+
                 }
 
             }
@@ -71,10 +90,10 @@ public class TgBotService extends TelegramWebhookBot {
         return null;
     }
 
-    public void executeNotification(RequestDto requestDto) throws TelegramApiException {
+    public void executeNotification(NotificationRequestDto notificationRequestDto) throws TelegramApiException {
         var button = InlineKeyboardButton.builder()
                 .text(VIEW_PRODUCT_BUTTON_TEXT)
-                .url(requestDto.getProductUrl())
+                .url(notificationRequestDto.getProductUrl())
                 .build();
 
         var keyboard = InlineKeyboardMarkup.builder()
@@ -82,9 +101,9 @@ public class TgBotService extends TelegramWebhookBot {
                 .build();
 
         execute(SendPhoto.builder()
-                .chatId(requestDto.getChatId())
-                .photo(new InputFile(requestDto.getProductPhotoUrl()))
-                .caption(String.format(PRICE_DROP_CAPTION, requestDto.getProductName()))
+                .chatId(notificationRequestDto.getChatId())
+                .photo(new InputFile(notificationRequestDto.getProductPhotoUrl()))
+                .caption(String.format(PRICE_DROP_CAPTION, notificationRequestDto.getProductName()))
                 .replyMarkup(keyboard).build());
     }
 

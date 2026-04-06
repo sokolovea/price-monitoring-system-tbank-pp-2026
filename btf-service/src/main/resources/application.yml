@@ -17,7 +17,7 @@ spring:
     drop-first: false
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -30,3 +30,5 @@ server:
 jwt:
   secret: ${btf.jwt.secret}
   expiration-ms: ${btf.jwt.expiration-ms}
+notification-api:
+  base-url: ${NOTIFICATION_API_BASE_URL}

@@ -10,3 +10,5 @@ bot:
   token: ${BOT_TOKEN}
   webhook-path: ${BOT_WEBHOOK_PATH}
   base-url: ${BOT_BASE_URL}
+api:
+  base-url: ${API_BASE_URL}

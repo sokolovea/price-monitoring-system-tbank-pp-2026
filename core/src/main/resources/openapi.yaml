@@ -201,7 +201,7 @@ paths:
       tags:
         - Products
   /service/check-status:
-    get:
+    post:
       operationId: ServiceConnection_checkStatus
       summary: Проверка статуса пользователя по id и сервису
       parameters: []
