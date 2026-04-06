@@ -3,6 +3,8 @@ package ru.tbank.pp.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.tbank.dto.CreateProductDto;
+import ru.tbank.dto.UpdateProductPriceResponseDto;
 import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.entity.UserProduct;
 import ru.tbank.pp.entity.UserProductId;
@@ -11,9 +13,11 @@ import ru.tbank.pp.mapper.ProductMapper;
 import ru.tbank.pp.mapper.ProductPriceMapper;
 import ru.tbank.pp.mapper.UserProductMapper;
 import ru.tbank.pp.model.*;
+import ru.tbank.pp.repository.ProductPriceRepository;
 import ru.tbank.pp.repository.ProductRepository;
 import ru.tbank.pp.repository.UserProductRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -21,6 +25,7 @@ import java.util.List;
 public class ProductService {
     private final ProductRepository productRepository;
     private final UserProductRepository userProductRepository;
+    private final ProductPriceRepository productPriceRepository;
 
     private final ProductPriceService productPriceService;
     private final UserService userService;
@@ -132,6 +137,28 @@ public class ProductService {
         return userProductRepository.save(userProduct).isNotify();
     }
 
+    @Transactional
+    public void createNewProduct(CreateProductDto createProductDto) {
+        var product = productMapper.toProduct(createProductDto);
+        product = productRepository.save(product);
+
+        var productPriceRequest = new UpdateProductPriceResponseDto();
+        productPriceRequest.setProductId(product.getId());
+        productPriceRequest.setPrice(createProductDto.getPrice());
+        productPriceRequest.setDate(LocalDateTime.now());
+
+        var productPrice = productPriceMapper.toProductPrice(productPriceRequest);
+        productPriceRepository.save(productPrice);
+    }
+
+    public Product getProduct(Long productId) {
+        return productRepository.findById(productId).orElseThrow(
+                () -> new ProductNotFoundException(
+                        String.format("Product with id '%s' not found", productId)
+                )
+        );
+    }
+
 
 
     private UserProduct getUserProduct(Long productId,Long userId) {
@@ -158,5 +185,7 @@ public class ProductService {
 
         return productOptional.get();
     }
+
+
 
 }
