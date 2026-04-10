@@ -1,6 +1,11 @@
 package ru.tbank.pp.integration.provider.wildberries;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -8,15 +13,19 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import ru.tbank.pp.integration.dto.NormalizedReference;
 import ru.tbank.pp.integration.dto.PriceInfo;
 import ru.tbank.pp.integration.dto.ProductInfo;
 import ru.tbank.pp.integration.dto.ProductReference;
 import ru.tbank.pp.integration.provider.ProductProvider;
 import ru.tbank.pp.integration.provider.ProviderType;
+import ru.tbank.pp.integration.provider.exception.InvalidProductReferenceException;
+import ru.tbank.pp.integration.provider.exception.ProductNotFoundException;
+import ru.tbank.pp.integration.provider.exception.ProviderCommunicationException;
 import ru.tbank.pp.integration.provider.wildberries.product.PriceSchema;
 import ru.tbank.pp.integration.provider.wildberries.product.ProductSchema;
 import ru.tbank.pp.integration.provider.wildberries.product.SizeSchema;
-import ru.tbank.pp.integration.provider.wildberries.product.WbResponse;
+import ru.tbank.pp.integration.provider.wildberries.product.Response;
 
 @Slf4j
 @Service
@@ -36,7 +45,13 @@ public class WildberriesProvider implements ProductProvider {
         }
     }
 
-    private void parseUrl(ProductReference productReference) {
+    private String buildNmString(List<NormalizedReference> references) {
+        return references.stream()
+                .map(NormalizedReference::getSku)
+                .collect(Collectors.joining(";"));
+    }
+
+    private void parseProductUrl(ProductReference productReference) {
         UriComponents uri = UriComponentsBuilder
                 .fromUriString(productReference.getUrl())
                 .build();
@@ -53,7 +68,7 @@ public class WildberriesProvider implements ProductProvider {
         productReference.setOptionId(uri.getQueryParams().getFirst("size"));
     }
 
-    private WbResponse sendProductRequest(String nm) {
+    private Response sendProductRequest(String nm) {
         return restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
@@ -61,13 +76,29 @@ public class WildberriesProvider implements ProductProvider {
                         .path("/__internal/card/cards/v4/detail")
                         .queryParam("appType", 32)
                         .queryParam("curr", "rub")
-                        .queryParam("dest", -1257786)
+                        .queryParam("dest", -5817683)
                         .queryParam("lang", "ru")
                         .queryParam("locale", "ru")
                         .queryParam("nm", nm)
                         .build()
                 ).retrieve()
-                .body(WbResponse.class);
+                .body(Response.class);
+    }
+
+    private List<Long> sendIdenticalProductRequest(long id) {
+        Long[] result = restClient.get()
+        .uri(uriBuilder -> uriBuilder
+                .scheme("https")
+                .host("identical-products.wildberries.ru")
+                .path("api/v1/identical")
+                .queryParam("nmID", id)
+                .build()
+        ).retrieve()
+        .body(Long[].class);
+        if (result == null) {
+            throw new ProviderCommunicationException("Got no response (wtf)");
+        }
+        return Arrays.asList(result);
     }
 
     private SizeSchema findOption(ProductSchema schema, Long optionId) {
@@ -87,22 +118,7 @@ public class WildberriesProvider implements ProductProvider {
         return result;
     }
 
-    @Override
-    public ProductInfo getProductInfo(ProductReference productReference) {
-        if (StringUtils.hasText(productReference.getUrl())) {
-            parseUrl(productReference);
-        } else if (!StringUtils.hasText(productReference.getSku())) {
-            log.error("Invalid product reference: {}", productReference);
-            //TODO: add exception handler
-            throw new IllegalArgumentException("Invalid product reference: " + productReference);
-        }
-
-        List<ProductSchema> productList = sendProductRequest(productReference.getSku()).getProducts();
-        if (productList.isEmpty()) {
-            //TODO: 404
-            return null;
-        }
-        ProductSchema product = productList.getFirst();
+    private ProductInfo parseInfo(ProductSchema product, Long optionId) {
         ProductInfo result = ProductInfo.builder()
                 .name(product.getName())
                 .category(product.getEntity())
@@ -113,18 +129,6 @@ public class WildberriesProvider implements ProductProvider {
                 .imageUrl(imageService.getBigUrl(product.getId()))
                 .previewUrl(imageService.get268x328Url(product.getId()))
                 .build();
-
-        Long optionId;
-        if (StringUtils.hasText(productReference.getOptionId())) {
-            try {
-                optionId = Long.parseLong(productReference.getOptionId());
-            } catch (NumberFormatException e) {
-                log.error("Invalid option id provided: {}", productReference);
-                throw new IllegalArgumentException("Invalid option id: " + productReference.getOptionId());
-            }
-        } else {
-            optionId = null;
-        }
         SizeSchema option = findOption(product, optionId);
         result.setOptionId(option.getOptionId().toString());
         result.setOptionName(option.getOrigName());
@@ -138,12 +142,73 @@ public class WildberriesProvider implements ProductProvider {
     }
 
     @Override
-    public List<ProductInfo> getProductInfoList(List<ProductReference> referenceList) {
+    public NormalizedReference normalize(ProductReference productReference) {
+        if (StringUtils.hasText(productReference.getUrl())) {
+            parseProductUrl(productReference);
+        } else if (!StringUtils.hasText(productReference.getSku())) {
+            log.error("Invalid product reference: {}", productReference);
+            throw new InvalidProductReferenceException("Invalid product reference: " + productReference);
+        }
+
+        return new NormalizedReference(
+                productReference.getSku(),
+                productReference.getMarketplace(),
+                productReference.getOptionId()
+        );
+    }
+
+    @Override
+    public ProductInfo getProductInfo(ProductReference productReference) {
+        NormalizedReference normalizedReference = normalize(productReference);
+
+        List<ProductSchema> productList = sendProductRequest(normalizedReference.getSku()).getProducts();
+        if (productList.isEmpty()) {
+            log.debug("No products found for sku: {}", normalizedReference.getSku());
+            throw new ProductNotFoundException("Product not found: " + normalizedReference.getSku());
+        }
+
+        return parseInfo(
+                productList.getFirst(),
+                Long.parseLong(normalizedReference.getOptionId())
+        );
+    }
+
+    @Override
+    public List<ProductInfo> getProductInfo(List<NormalizedReference> referenceList) {
+        Map<String, List<String>> skuToOptions = HashMap.newHashMap(referenceList.size());
+        referenceList.forEach(reference ->
+                    skuToOptions.computeIfAbsent(reference.getSku(), _ -> List.of()).add(reference.getOptionId())
+                );
+
+        Response wbResponse = sendProductRequest(buildNmString(referenceList));
+
+        List<ProductInfo> result = new ArrayList<>(referenceList.size());
+        wbResponse.getProducts().forEach(product ->
+                    skuToOptions.get(product.getId().toString())
+                            .forEach(option ->
+                                    result.add(parseInfo(product, Long.parseLong(option)))
+                            )
+                );
+        return result;
+    }
+
+    private PriceInfo parsePrice(ProductSchema product, Long optionId) {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public List<PriceInfo> getPriceInfo(List<NormalizedReference> referenceList) {
         return List.of();
     }
 
     @Override
-    public List<PriceInfo> getPriceInfo(List<ProductReference> referenceList) {
+    public List<ProductInfo> getSimilarProducts(NormalizedReference productReference) {
+        return List.of();
+    }
+
+    @Override
+    public List<ProductInfo> searchProducts(String query) {
         return List.of();
     }
 }

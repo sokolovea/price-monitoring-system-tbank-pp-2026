@@ -1,39 +1,15 @@
 package ru.tbank.pp.integration.provider.wildberries;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.annotation.PostConstruct;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.AllArgsConstructor; import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
-
-//TODO: move those to separate package
-@JsonIgnoreProperties(ignoreUnknown = true)
-class Response {
-    public MediaInfo recommend;
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-class MediaInfo {
-    public List<Method> mediabasket_route_map;
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-class Method {
-    public String method;
-    public List<Host> hosts;
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-class Host {
-    public Long vol_range_from;
-    public Long vol_range_to;
-    public String host;
-}
+import ru.tbank.pp.integration.provider.wildberries.image.Host;
+import ru.tbank.pp.integration.provider.wildberries.image.Method;
+import ru.tbank.pp.integration.provider.wildberries.image.Response;
 
 @Getter
 @AllArgsConstructor
@@ -49,6 +25,15 @@ public class ImageService {
     private final RestClient restClient;
     private List<Host> hosts;
 
+    /**
+     * To get vol out of product id you have to remove first five digits.
+     * i.e. for id: 281014628
+     *  vol would be equal to 2810
+     *  part would be equal to 281014
+     */
+    private static final long VOL_IGNORE_LEN = 100_000;
+    public static final long PART_IGNORE_LEN = 1_000;
+
     private Response sendHostRequest() {
         return restClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -60,15 +45,15 @@ public class ImageService {
                 .body(Response.class);
     }
 
-    @PostConstruct
     private void setHosts() {
         Response hostRequest = sendHostRequest();
-        if (hostRequest == null) {
+        if (hostRequest == null ||
+                hostRequest.recommend == null ||
+                hostRequest.recommend.mediabasket_route_map == null) {
             log.error("Couldn't request hosts");
             // TODO: Change runtime exception
             throw new RuntimeException("Request failed");
         }
-        //TODO check null recommend
         Method result = hostRequest.recommend.mediabasket_route_map.stream()
                 .filter(routeMap -> routeMap.method.equals("range"))
                 .findFirst()
@@ -82,11 +67,15 @@ public class ImageService {
     }
 
     private String findHost(long vol) {
+        if (hosts == null || hosts.isEmpty()) {
+            setHosts();
+        }
+
         int left = -1;
         int right = hosts.size();
         while (right - left > 1) {
             int mid = (right + left) / 2;
-            if (hosts.get(mid).vol_range_from < vol) {
+            if (hosts.get(mid).vol_range_from <= vol) {
                 left = mid;
             } else {
                 right = mid;
@@ -100,8 +89,8 @@ public class ImageService {
     }
 
     private ProductId parseId(long id) {
-        long vol = id / 100_000;
-        long part = id / 1_000;
+        long vol = id / VOL_IGNORE_LEN;
+        long part = id / PART_IGNORE_LEN;
         return new ProductId(
             vol,
             part

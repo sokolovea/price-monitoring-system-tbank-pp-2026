@@ -6,6 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class WbResponse {
+public class Response {
     List<ProductSchema> products;
 }
