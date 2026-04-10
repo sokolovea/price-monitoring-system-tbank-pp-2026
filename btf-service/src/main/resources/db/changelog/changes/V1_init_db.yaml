@@ -160,8 +160,6 @@ databaseChangeLog:
               - column:
                   name: threshold_price
                   type: DECIMAL(38,2)
-                  constraints:
-                    nullable: false
         - addPrimaryKey:
             constraintName: pk_user_products
             tableName: user_products
@@ -203,8 +201,8 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: external_id
-                  type: VARCHAR(255)
+                  name: internal_id
+                  type: BIGINT
                   constraints:
                     nullable: false
         - addPrimaryKey:

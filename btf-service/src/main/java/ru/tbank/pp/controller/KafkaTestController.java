@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.tbank.dto.UpdateProductPriceRequestDto;
 import ru.tbank.dto.UpdateProductPriceRequestDtoList;
 import ru.tbank.pp.kafka.producer.ProductRequestProducer;
 

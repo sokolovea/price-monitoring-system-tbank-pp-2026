@@ -1,10 +1,12 @@
-package ru.tbank.pp.dto;
+package ru.tbank.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class RequestDto {
+@Setter
+public class NotificationRequestDto {
     Long chatId;
 
     @NotBlank

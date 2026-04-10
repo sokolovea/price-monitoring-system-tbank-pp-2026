@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.tbank.pp.dto.RequestDto;
+import ru.tbank.dto.NotificationRequestDto;
 import ru.tbank.pp.service.TgBotService;
 
 @RestController
@@ -17,7 +17,7 @@ public class InternalWebhookController {
      * Контроллер для наших вебхуков, должен вызываться при уменьшении цены до порога, вызывается из основного сервиса
      */
     @PostMapping("/webhook/send")
-    public void sendMessage(@RequestBody RequestDto request) throws TelegramApiException {
+    public void sendMessage(@RequestBody NotificationRequestDto request) throws TelegramApiException {
         botService.executeNotification(request);
     }
 }

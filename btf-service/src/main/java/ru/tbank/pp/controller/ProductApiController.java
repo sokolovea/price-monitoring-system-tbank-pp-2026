@@ -1,23 +1,19 @@
 package ru.tbank.pp.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.NativeWebRequest;
 import ru.tbank.pp.api.ProductsApi;
-import ru.tbank.pp.model.ProductsNotification;
-import ru.tbank.pp.model.ProductsProduct;
-import ru.tbank.pp.model.ProductsProductForUpdate;
-import ru.tbank.pp.model.ProductsProductPreview;
+import ru.tbank.pp.model.*;
+import ru.tbank.pp.service.ProductService;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor
 public class ProductApiController implements ProductsApi {
-    @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return ProductsApi.super.getRequest();
-    }
+    private final ProductService productService;
 
     @Override
     public ResponseEntity<List<ProductsProductForUpdate>> productsGetProductsForUpdate() {
@@ -25,37 +21,43 @@ public class ProductApiController implements ProductsApi {
     }
 
     @Override
-    public ResponseEntity<ProductsProduct> productsAddProduct(String body) {
-        return ProductsApi.super.productsAddProduct(body);
+    public ResponseEntity<ProductsProduct> productsAddProduct(ProductsUrl productsUrl) {
+        return ResponseEntity.of(Optional.of(productService.addProduct(productsUrl)));
     }
 
     @Override
     public ResponseEntity<Void> productsDeleteProduct(Long productId) {
-        return ProductsApi.super.productsDeleteProduct(productId);
+        productService.deleteProduct(productId);
+        return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<ProductsProduct> productsGetProductById(Long productId) {
-        return ProductsApi.super.productsGetProductById(productId);
+    public ResponseEntity<ProductsProductDetail> productsGetProductById(Long productId) {
+        return ResponseEntity.of(Optional.of(productService.getProductDetail(productId)));
     }
 
     @Override
     public ResponseEntity<List<ProductsProduct>> productsGetProducts() {
-        return ProductsApi.super.productsGetProducts();
+        return ResponseEntity.of(Optional.of(productService.getAllUserProducts()));
     }
 
     @Override
-    public ResponseEntity<ProductsNotification> productsNotificationSubscribe(Long productId, ProductsNotification productsNotification) {
-        return ProductsApi.super.productsNotificationSubscribe(productId, productsNotification);
+    public ResponseEntity<ProductsNotification> productsNotificationSubscribe(Long productId, ProductsNotificationUpdate productsNotificationUpdate) {
+        return ResponseEntity.of(Optional.of(productService.subscribeNotification(productId, productsNotificationUpdate)));
     }
 
     @Override
     public ResponseEntity<Boolean> productsNotificationUnSubscribe(Long productId) {
-        return ProductsApi.super.productsNotificationUnSubscribe(productId);
+        return ResponseEntity.ok(productService.unsubscribeNotification(productId));
     }
 
     @Override
-    public ResponseEntity<ProductsProductPreview> productsProductPreview(String body) {
-        return ProductsApi.super.productsProductPreview(body);
+    public ResponseEntity<ProductsProductPreview> productsProductPreview(ProductsUrl productUrl) {
+        return  ResponseEntity.of(Optional.of(productService.getProductPreview(productUrl)));
+    }
+
+    @Override
+    public ResponseEntity<List<ProductsProductDetail>> productsProductCompare(ProductsIdList productsIdList) {
+        return ResponseEntity.of(Optional.of(productService.geProductDetailList(productsIdList)));
     }
 }

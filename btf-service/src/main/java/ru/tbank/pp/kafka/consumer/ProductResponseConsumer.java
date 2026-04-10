@@ -18,7 +18,7 @@ public class ProductResponseConsumer {
     )
     public void consume(UpdateProductPriceResponseDto updateProductPriceResponseDto) {
         log.info("Consumer received update product \nID: {}, \nPrice: {}, \nDate: {}",
-                updateProductPriceResponseDto.getId(),
+                updateProductPriceResponseDto.getProductId(),
                 updateProductPriceResponseDto.getPrice(),
                 updateProductPriceResponseDto.getDate()
         );

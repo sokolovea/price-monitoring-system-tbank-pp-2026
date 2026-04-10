@@ -23,5 +23,5 @@ public class UserNotification {
     private User user;
 
     @Column(nullable = false)
-    private String externalId;
+    private Long internalId;
 }

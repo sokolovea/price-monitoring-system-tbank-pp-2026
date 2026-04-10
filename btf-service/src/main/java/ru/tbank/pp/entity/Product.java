@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import ru.tbank.pp.model.ProductsMarketplace;
 
 @Entity
 @Table(name = "product")
@@ -24,7 +25,7 @@ public class Product {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Marketplace marketplace;
+    private ProductsMarketplace marketplace;
 
     @Column(nullable = false)
     private String url;

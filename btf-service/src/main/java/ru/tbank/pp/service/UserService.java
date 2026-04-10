@@ -1,11 +1,14 @@
 package ru.tbank.pp.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.pp.dto.RegisterUserRequest;
 import ru.tbank.pp.entity.User;
+import ru.tbank.pp.exception.AuthException;
+import ru.tbank.pp.exception.UserNotFoundException;
 import ru.tbank.pp.repository.UserRepository;
 
 import java.util.Optional;
@@ -50,4 +53,21 @@ public class UserService {
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmailIgnoreCase(email);
     }
+
+    public Long getIdFromCridentials() {
+        return getUserFromCridentials().getId();
+    }
+
+    public User getUserFromCridentials() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            throw new AuthException("Authentication object is null");
+        }
+        var user = (User) auth.getPrincipal();
+        if (user == null) {
+            throw new UserNotFoundException("User not found");
+        }
+        return user;
+    }
+
 }

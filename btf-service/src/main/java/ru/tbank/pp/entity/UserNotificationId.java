@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
+import ru.tbank.pp.model.ServiceConnectionService;
 
 import java.io.Serializable;
 
@@ -16,5 +17,5 @@ public class UserNotificationId implements Serializable {
     private Long userId;
 
     @Column(name = "notification_service")
-    private String notificationService;
+    private ServiceConnectionService notificationService;
 }
