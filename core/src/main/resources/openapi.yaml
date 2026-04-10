@@ -83,6 +83,28 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Products.Url'
+  /products/compare:
+    post:
+      operationId: Products_productCompare
+      summary: Сравнение цен на товар
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Products.ProductDetail'
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Products.IdList'
   /products/for-update:
     get:
       operationId: Products_getProductsForUpdate
@@ -273,6 +295,16 @@ components:
           type: string
         token:
           type: string
+    Products.IdList:
+      type: object
+      required:
+        - ids
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+            format: int64
     Products.Marketplace:
       type: string
       enum:

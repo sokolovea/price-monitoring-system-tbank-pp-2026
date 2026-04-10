@@ -5,7 +5,9 @@ import org.springframework.stereotype.Component;
 import ru.tbank.dto.UpdateProductPriceResponseDto;
 import ru.tbank.pp.entity.ProductPrice;
 import ru.tbank.pp.entity.ProductPriceId;
+import ru.tbank.pp.exception.ProductNotFoundException;
 import ru.tbank.pp.model.ProductsPriceHistory;
+import ru.tbank.pp.repository.ProductRepository;
 import ru.tbank.pp.service.ProductService;
 
 import java.time.LocalDateTime;
@@ -14,7 +16,7 @@ import java.time.ZoneOffset;
 @Component
 @RequiredArgsConstructor
 public class ProductPriceMapper {
-    private final ProductService productService;
+    private final ProductRepository productRepository;
     public ProductsPriceHistory mapToProductsPriceHistory(ProductPrice productPrice) {
         var productPriceHistory = new ProductsPriceHistory();
         productPriceHistory.setPrice(productPrice.getPrice());
@@ -27,9 +29,15 @@ public class ProductPriceMapper {
         productPriceId.setProductId(updateProductPriceResponseDto.getProductId());
         productPriceId.setCheckDate(updateProductPriceResponseDto.getDate());
 
+        var product = productRepository.findById(productPriceId.getProductId()).orElseThrow(
+                () -> new ProductNotFoundException(
+                        String.format("Product with id '%s' not found", productPriceId.getProductId())
+                )
+        );
+
         var productPrice = new ProductPrice();
         productPrice.setId(productPriceId);
-        productPrice.setProduct(productService.getProduct(productPriceId.getProductId()));
+        productPrice.setProduct(product);
         productPrice.setPrice(updateProductPriceResponseDto.getPrice());
 
         return productPrice;

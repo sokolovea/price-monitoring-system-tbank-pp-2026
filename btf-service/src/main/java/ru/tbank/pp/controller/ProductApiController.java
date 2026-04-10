@@ -55,4 +55,9 @@ public class ProductApiController implements ProductsApi {
     public ResponseEntity<ProductsProductPreview> productsProductPreview(ProductsUrl productUrl) {
         return  ResponseEntity.of(Optional.of(productService.getProductPreview(productUrl)));
     }
+
+    @Override
+    public ResponseEntity<List<ProductsProductDetail>> productsProductCompare(ProductsIdList productsIdList) {
+        return ResponseEntity.of(Optional.of(productService.geProductDetailList(productsIdList)));
+    }
 }

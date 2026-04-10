@@ -159,6 +159,14 @@ public class ProductService {
         );
     }
 
+    public List<ProductsProductDetail> geProductDetailList(ProductsIdList productsIdList) {
+        var productsOptional = productRepository.findAllById(productsIdList.getIds());
+        if (productsOptional.isEmpty()) {
+            throw new ProductNotFoundException("Products not found");
+        }
+        return productsOptional.stream().map(productMapper::toProductsProductDetail).toList();
+    }
+
 
 
     private UserProduct getUserProduct(Long productId,Long userId) {

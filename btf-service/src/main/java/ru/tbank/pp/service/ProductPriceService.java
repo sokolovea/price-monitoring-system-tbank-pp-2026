@@ -1,17 +1,13 @@
 package ru.tbank.pp.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.tbank.dto.NotificationRequestDto;
 import ru.tbank.dto.UpdateProductPriceResponseDto;
 import ru.tbank.pp.client.NotificationClient;
 import ru.tbank.pp.entity.ProductPrice;
-import ru.tbank.pp.entity.UserNotification;
 import ru.tbank.pp.entity.UserNotificationId;
-import ru.tbank.pp.entity.UserProduct;
 import ru.tbank.pp.mapper.ProductPriceMapper;
-import ru.tbank.pp.mapper.UserProductMapper;
 import ru.tbank.pp.model.ServiceConnectionService;
 import ru.tbank.pp.repository.ProductPriceRepository;
 import ru.tbank.pp.repository.UserNotificationRepository;
