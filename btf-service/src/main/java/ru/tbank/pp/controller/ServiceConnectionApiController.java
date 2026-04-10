@@ -15,7 +15,7 @@ public class ServiceConnectionApiController implements ServiceApi {
 
     @Override
     public ResponseEntity<Boolean> serviceConnectionCheckStatus(ServiceConnectionStatusCheckRequest serviceConnectionStatusCheckRequest) {
-        return ResponseEntity.ok(userNotificationService.checkIfUserNotificationExists(serviceConnectionStatusCheckRequest));
+        return ResponseEntity.ok(userNotificationService.checkConnectionStatus(serviceConnectionStatusCheckRequest));
     }
 
     @Override

@@ -2,6 +2,7 @@ package ru.tbank.pp.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -24,7 +25,7 @@ import static ru.tbank.pp.model.ServiceConnectionService.TELEGRAM;
 
 @Slf4j
 @Service
-public class TgBotService extends TelegramWebhookBot {
+public class TgBotService extends TelegramLongPollingBot {
     private final TgBotProperties tgBotProperties;
     private final BackendClient backendClient;
 
@@ -38,11 +39,10 @@ public class TgBotService extends TelegramWebhookBot {
         super(tgBotProperties.getToken());
         this.tgBotProperties = tgBotProperties;
         this.backendClient = backendClient;
-        this.setWebhook(new SetWebhook(tgBotProperties.getBaseUrl()));
     }
 
     @Override
-    public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
+    public void onUpdateReceived(Update update) {
         log.debug("Received update: {}", update);
         if (update.hasMessage()) {
             var message = update.getMessage();
@@ -62,7 +62,6 @@ public class TgBotService extends TelegramWebhookBot {
                         var serviceConnectionStatusCheckRequest = new ServiceConnectionStatusCheckRequest();
                         serviceConnectionStatusCheckRequest.setService(TELEGRAM);
                         serviceConnectionStatusCheckRequest.setId(userId);
-
                         if (!backendClient.checkIfUserExists(serviceConnectionStatusCheckRequest)) {
                             var serviceConnectionConnectRequest = new ServiceConnectionConnectRequest();
                             serviceConnectionConnectRequest.setService(TELEGRAM);
@@ -76,18 +75,24 @@ public class TgBotService extends TelegramWebhookBot {
                             sendMessage.setText(USER_LINK_ERROR);
                         }
 
-                    } catch (NumberFormatException e) {
-                        log.warn("Invalid user ID format: {}", parts[1]);
+                    } catch (Exception e) {
+                        log.warn(e.getMessage());
+                        e.printStackTrace();
                     }
 
                 }
 
             }
+            else {
+                sendMessage.setText(text);
+            }
 
-            return sendMessage;
+            try {
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
         }
-
-        return null;
     }
 
     public void executeNotification(NotificationRequestDto notificationRequestDto) throws TelegramApiException {
@@ -105,11 +110,6 @@ public class TgBotService extends TelegramWebhookBot {
                 .photo(new InputFile(notificationRequestDto.getProductPhotoUrl()))
                 .caption(String.format(PRICE_DROP_CAPTION, notificationRequestDto.getProductName()))
                 .replyMarkup(keyboard).build());
-    }
-
-    @Override
-    public String getBotPath() {
-        return tgBotProperties.getWebhookPath();
     }
 
     @Override

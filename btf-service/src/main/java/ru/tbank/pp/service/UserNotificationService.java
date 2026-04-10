@@ -16,16 +16,19 @@ public class UserNotificationService {
     private final UserNotificationRepository userNotificationRepository;
     private final UserRepository userRepository;
 
-    private final UserService userService;
+    public boolean checkConnectionStatus(ServiceConnectionStatusCheckRequest serviceConnectionStatusCheckRequest) {
+        var user = userRepository.findById(serviceConnectionStatusCheckRequest.getId());
+        if (user.isEmpty()) {
+            return false;
+        }
 
-    public boolean checkIfUserNotificationExists(ServiceConnectionStatusCheckRequest serviceConnectionStatusCheckRequest) {
         var userNotificationId = new UserNotificationId();
         userNotificationId.setUserId(serviceConnectionStatusCheckRequest.getId());
         userNotificationId.setNotificationService(serviceConnectionStatusCheckRequest.getService());
 
         var userNotification = userNotificationRepository.findById(userNotificationId);
 
-        return userNotification.isPresent();
+        return userNotification.isEmpty();
     }
 
     public void connectService(ServiceConnectionConnectRequest serviceConnectionConnectRequest) {
