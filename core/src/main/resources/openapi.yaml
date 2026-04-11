@@ -7,6 +7,7 @@ tags:
   - name: Authentication
   - name: ServiceConnection
   - name: User
+  - name: Gpt
 paths:
   /auth/login:
     post:
@@ -48,6 +49,26 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Authentication.AuthRequest'
+  /gpt:
+    post:
+      operationId: Gpt_getGptHelp
+      summary: Возвращает мнение GPT по поводу цены товара и его динамики
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gpt.GptResponse'
+      tags:
+        - Gpt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Gpt.IdList'
   /products:
     get:
       operationId: Products_getProducts
@@ -295,6 +316,23 @@ components:
           type: string
         token:
           type: string
+    Gpt.GptResponse:
+      type: object
+      required:
+        - gptOpinion
+      properties:
+        gptOpinion:
+          type: string
+    Gpt.IdList:
+      type: object
+      required:
+        - ids
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+            format: int64
     Products.IdList:
       type: object
       required:

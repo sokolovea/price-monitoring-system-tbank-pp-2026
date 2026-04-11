@@ -58,6 +58,6 @@ public class ProductApiController implements ProductsApi {
 
     @Override
     public ResponseEntity<List<ProductsProductDetail>> productsProductCompare(ProductsIdList productsIdList) {
-        return ResponseEntity.of(Optional.of(productService.geProductDetailList(productsIdList)));
+        return ResponseEntity.of(Optional.of(productService.getProductDetailList(productsIdList.getIds())));
     }
 }

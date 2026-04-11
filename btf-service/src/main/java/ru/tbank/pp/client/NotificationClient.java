@@ -1,15 +1,17 @@
 package ru.tbank.pp.client;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import ru.tbank.dto.NotificationRequestDto;
-import ru.tbank.pp.config.RestClientConfig;
 
 @Component
-@RequiredArgsConstructor
 public class NotificationClient {
     private final RestClient restClient;
+
+    public NotificationClient(@Qualifier("notification") RestClient restClient) {
+        this.restClient = restClient;
+    }
 
     public void sendNotification(NotificationRequestDto notificationRequestDto) {
         restClient
