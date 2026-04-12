@@ -159,8 +159,8 @@ public class ProductService {
         );
     }
 
-    public List<ProductsProductDetail> geProductDetailList(ProductsIdList productsIdList) {
-        var productsOptional = productRepository.findAllById(productsIdList.getIds());
+    public List<ProductsProductDetail> getProductDetailList(List<Long> ids) {
+        var productsOptional = productRepository.findAllById(ids);
         if (productsOptional.isEmpty()) {
             throw new ProductNotFoundException("Products not found");
         }

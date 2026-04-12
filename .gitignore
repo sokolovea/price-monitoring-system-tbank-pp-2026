@@ -38,3 +38,4 @@ out/
 
 ### Secrets and local configs ###
 application-local.yml
+.env

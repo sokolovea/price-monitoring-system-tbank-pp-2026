@@ -4,11 +4,11 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
   config:
-    import: optional:file:application-local.yml
+    import: optional:file:.env[.properties]
   datasource:
-    url: ${btf.spring.datasource.url}
-    username: ${btf.spring.datasource.username}
-    password: ${btf.spring.datasource.password}
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -28,7 +28,16 @@ server:
   port: 8080
 
 jwt:
-  secret: ${btf.jwt.secret}
-  expiration-ms: ${btf.jwt.expiration-ms}
+  secret: ${JWT_SECRET}
+  expiration-ms: 1800000
+
 notification-api:
   base-url: ${NOTIFICATION_API_BASE_URL}
+
+yandex:
+  api-url: ${YANDEX_API_URL}
+  api-key: ${YANDEX_API_KEY}
+  folder-id: ${YANDEX_FOLDER_ID}
+  command-path-for-docker: ${YANDEX_COMMAND_PATH_FOR_DOCKER}
+  command-path-for-ide: ${YANDEX_COMMAND_PATH_FOR_IDE}
+  model: ${YANDEX_MODEL}
