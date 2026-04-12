@@ -28,12 +28,15 @@ public class GptHelperService {
     private final YandexGptProperties yandexGptProperties;
     private final YandexClient yandexClient;
 
+    private final ObjectMapper objectMapper;
+
     private static final String YANDEX_USER_ROLE = "user";
     private static final String YANDEX_SYSTEM_ROLE = "system";
 
     public GptGptResponse getGptResponse(GptIdList idList) {
         var products = productService.getProductDetailList(idList.getIds());
-        var objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+
+        var objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
         var stringJsonProducts = "";
         try {
             stringJsonProducts = objectWriter.writeValueAsString(products);

@@ -13,8 +13,7 @@ public class ObjectMapperConfig {
     ObjectMapper getObjectMapper() {
         var mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
-        mapper.disable(MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES);
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);//todo разобраться с датами
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
     }
 }
