@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: integration-service
+  config:
+    import: optional:file:.env
+
+server:
+  port: 8082
+
+external:
+  provider:
+    wildberries:
+      token: ${WB_ACCESS_TOKEN}
+      dest: -5817683

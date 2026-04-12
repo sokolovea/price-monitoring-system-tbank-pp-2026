@@ -8,7 +8,15 @@ import lombok.Data;
  */
 @Data
 public class PriceInfo {
+    /**
+     * Product sku
+     */
+    String sku;
 
+    /**
+     * Product option id
+     */
+    String optionId;
 
     /**
      * Current price in RUB * 100. (i.e. 456.12 rub turns into 45612)
@@ -18,5 +26,5 @@ public class PriceInfo {
     /**
      * When was this information gathered
      */
-    Instant updatedAt;
+    Instant lastUpdate;
 }

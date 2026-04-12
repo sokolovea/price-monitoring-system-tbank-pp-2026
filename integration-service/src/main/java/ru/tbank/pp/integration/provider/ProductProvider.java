@@ -10,9 +10,6 @@ public interface ProductProvider {
     ProductInfo getProductInfo(ProductReference productReference);
     List<ProductInfo> getProductInfo(List<NormalizedReference> productReference);
     List<PriceInfo> getPriceInfo(List<NormalizedReference> productReference);
-
     List<ProductInfo> getSimilarProducts(NormalizedReference productReference);
-    List<ProductInfo> searchProducts(String query);
-
     NormalizedReference normalize(ProductReference productReference);
 }

@@ -1,6 +1,5 @@
 package ru.tbank.pp.integration.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +13,6 @@ import ru.tbank.pp.integration.dto.ProductInfo;
 import ru.tbank.pp.integration.dto.ProductReference;
 import ru.tbank.pp.integration.provider.ProductProvider;
 import ru.tbank.pp.integration.provider.ProviderFactory;
-import ru.tbank.pp.integration.provider.ProviderType;
 
 @Slf4j
 @RestController
@@ -37,17 +35,6 @@ public class ProductController {
         ProductProvider provider = providerFactory.getProvider(productReference.getMarketplace());
         List<ProductInfo> result = provider.getSimilarProducts(provider.normalize(productReference));
         log.debug("Similar product info: {}", result);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    @PostMapping("/search")
-    public ResponseEntity<List<ProductInfo>> searchProduct(@RequestBody String query) {
-        log.debug("Received search request. Query: {}", query);
-        List<ProductInfo> result = new ArrayList<>();
-        for (ProviderType type : ProviderType.values()) {
-            result.addAll(providerFactory.getProvider(type).searchProducts(query));
-        }
-        log.debug("Search results: {}", result);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

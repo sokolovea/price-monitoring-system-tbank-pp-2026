@@ -1,8 +1,8 @@
 package ru.tbank.pp.integration.provider.wildberries;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import ru.tbank.pp.integration.config.WbProviderConfig;
 import ru.tbank.pp.integration.dto.NormalizedReference;
 import ru.tbank.pp.integration.dto.PriceInfo;
 import ru.tbank.pp.integration.dto.ProductInfo;
@@ -32,6 +33,7 @@ import ru.tbank.pp.integration.provider.wildberries.product.Response;
 @RequiredArgsConstructor
 public class WildberriesProvider implements ProductProvider {
     private final RestClient restClient;
+    private final WbProviderConfig config;
     private final ImageService imageService;
 
     private static final String PRODUCT_URL = "https://wildberries.ru/catalog/%d/detail.aspx";
@@ -48,6 +50,13 @@ public class WildberriesProvider implements ProductProvider {
     private String buildNmString(List<NormalizedReference> references) {
         return references.stream()
                 .map(NormalizedReference::getSku)
+                .distinct()
+                .collect(Collectors.joining(";"));
+    }
+
+    private String buildNmStringFromIds(List<Long> ids) {
+        return ids.stream()
+                .map(Object::toString)
                 .collect(Collectors.joining(";"));
     }
 
@@ -68,20 +77,22 @@ public class WildberriesProvider implements ProductProvider {
         productReference.setOptionId(uri.getQueryParams().getFirst("size"));
     }
 
-    private Response sendProductRequest(String nm) {
-        return restClient.get()
+    private Response sendProductRequest(String nm) { return restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
                         .host("api-android.wildberries.ru")
                         .path("/__internal/card/cards/v4/detail")
                         .queryParam("appType", 32)
                         .queryParam("curr", "rub")
-                        .queryParam("dest", -5817683)
+                        .queryParam("dest", config.getDest())
                         .queryParam("lang", "ru")
                         .queryParam("locale", "ru")
                         .queryParam("nm", nm)
                         .build()
-                ).retrieve()
+                )
+                .cookie("x_wbaas_token", config.getToken())
+                .header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36")
+                .retrieve()
                 .body(Response.class);
     }
 
@@ -93,7 +104,10 @@ public class WildberriesProvider implements ProductProvider {
                 .path("api/v1/identical")
                 .queryParam("nmID", id)
                 .build()
-        ).retrieve()
+        )
+        .cookie("x_wbaas_token", config.getToken())
+        .header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36")
+                .retrieve()
         .body(Long[].class);
         if (result == null) {
             throw new ProviderCommunicationException("Got no response (wtf)");
@@ -101,11 +115,17 @@ public class WildberriesProvider implements ProductProvider {
         return Arrays.asList(result);
     }
 
-    private SizeSchema findOption(ProductSchema schema, Long optionId) {
+    private SizeSchema findOption(ProductSchema schema, String optionId) {
         SizeSchema result;
         if (optionId != null) {
+            long numOption;
+            try {
+                numOption = Long.parseLong(optionId);
+            } catch (NumberFormatException e) {
+                throw new InvalidProductReferenceException("Invalid option id " + optionId);
+            }
             result = schema.getSizes().stream()
-                    .filter(sizeSchema -> sizeSchema.getOptionId().equals(optionId))
+                    .filter(sizeSchema -> sizeSchema.getOptionId().equals(numOption))
                     .findFirst()
                     .orElse(null);
             if (result == null) {
@@ -113,12 +133,34 @@ public class WildberriesProvider implements ProductProvider {
                 throw new IllegalArgumentException("Option id not found " + optionId);
             }
         } else {
-            result = schema.getSizes().getFirst();
+            if (schema.getSizes().isEmpty()) {
+                log.debug("No options found.");
+                result = new SizeSchema();
+                result.setOrigName(null);
+                result.setOptionId(null);
+                result.setPrice(null);
+            } else {
+                result = schema.getSizes().getFirst();
+            }
         }
         return result;
     }
 
-    private ProductInfo parseInfo(ProductSchema product, Long optionId) {
+    private PriceInfo parsePrice(ProductSchema product, String optionId, Instant lastUpdate) {
+        PriceInfo result = new PriceInfo();
+        result.setSku(product.getId().toString());
+        result.setLastUpdate(lastUpdate);
+
+        SizeSchema option = findOption(product, optionId);
+        if (option != null) {
+            PriceSchema price = option.getPrice();
+            result.setPrice(price.getProduct());
+            result.setOptionId(option.getOptionId().toString());
+        }
+        return result;
+    }
+
+    private ProductInfo parseInfo(ProductSchema product, String optionId) {
         ProductInfo result = ProductInfo.builder()
                 .name(product.getName())
                 .category(product.getEntity())
@@ -130,11 +172,12 @@ public class WildberriesProvider implements ProductProvider {
                 .previewUrl(imageService.get268x328Url(product.getId()))
                 .build();
         SizeSchema option = findOption(product, optionId);
-        result.setOptionId(option.getOptionId().toString());
+        if (option.getOptionId() != null) {
+            result.setOptionId(option.getOptionId().toString());
+        }
         result.setOptionName(option.getOrigName());
-        result.setUrl(buildProductUrl(product.getId(), option.getOptionId()));
-
         PriceSchema price = option.getPrice();
+        result.setUrl(buildProductUrl(product.getId(), option.getOptionId()));
         if (price != null) {
             result.setPrice(price.getProduct());
         }
@@ -169,46 +212,64 @@ public class WildberriesProvider implements ProductProvider {
 
         return parseInfo(
                 productList.getFirst(),
-                Long.parseLong(normalizedReference.getOptionId())
+                normalizedReference.getOptionId()
         );
     }
 
     @Override
     public List<ProductInfo> getProductInfo(List<NormalizedReference> referenceList) {
-        Map<String, List<String>> skuToOptions = HashMap.newHashMap(referenceList.size());
-        referenceList.forEach(reference ->
-                    skuToOptions.computeIfAbsent(reference.getSku(), _ -> List.of()).add(reference.getOptionId())
-                );
+        Map<String, List<String>> skuToOptions = referenceList.stream()
+                .collect(Collectors.groupingBy(NormalizedReference::getSku, Collectors.mapping(NormalizedReference::getOptionId, Collectors.toList())));
 
         Response wbResponse = sendProductRequest(buildNmString(referenceList));
+        if (wbResponse.getProducts().isEmpty()) {
+            log.debug("No products found. Couldn't get ProductInfo.");
+            throw new ProductNotFoundException("No products found.");
+        }
 
         List<ProductInfo> result = new ArrayList<>(referenceList.size());
         wbResponse.getProducts().forEach(product ->
-                    skuToOptions.get(product.getId().toString())
-                            .forEach(option ->
-                                    result.add(parseInfo(product, Long.parseLong(option)))
-                            )
-                );
+                skuToOptions.get(product.getId().toString())
+                        .forEach(option ->
+                                result.add(parseInfo(product, option))
+                        )
+        );
         return result;
-    }
-
-    private PriceInfo parsePrice(ProductSchema product, Long optionId) {
-        //TODO
-        return null;
     }
 
     @Override
     public List<PriceInfo> getPriceInfo(List<NormalizedReference> referenceList) {
-        return List.of();
+        Map<String, List<String>> skuToOptions = referenceList.stream()
+                .collect(Collectors.groupingBy(NormalizedReference::getSku, Collectors.mapping(NormalizedReference::getOptionId, Collectors.toList())));
+
+        Response wbResponse = sendProductRequest(buildNmString(referenceList));
+        if (wbResponse.getProducts().isEmpty()) {
+            log.debug("No products found. Couldn't get PriceInfo.");
+            throw new ProductNotFoundException("No products found.");
+        }
+        Instant requestTime = Instant.now();
+
+        List<PriceInfo> result = new ArrayList<>(referenceList.size());
+        wbResponse.getProducts().forEach(product ->
+                skuToOptions.get(product.getId().toString())
+                        .forEach(option ->
+                                result.add(parsePrice(product, option, requestTime))
+                        )
+        );
+        return result;
     }
 
     @Override
     public List<ProductInfo> getSimilarProducts(NormalizedReference productReference) {
-        return List.of();
-    }
+        List<Long> ids = sendIdenticalProductRequest(Long.parseLong(productReference.getSku()));
+        Response wbResponse = sendProductRequest(buildNmStringFromIds(ids));
+        if (wbResponse.getProducts().isEmpty()) {
+            log.debug("No similar products found for sku: {}", productReference.getSku());
+            throw new ProductNotFoundException("Similar products not found: " + productReference.getSku());
+        }
 
-    @Override
-    public List<ProductInfo> searchProducts(String query) {
-        return List.of();
+        return wbResponse.getProducts().stream()
+                .map(product -> parseInfo(product, null))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }
