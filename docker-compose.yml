@@ -1,5 +1,4 @@
 volumes:
-  cloudpub-config:
   pgdata:
 services:
   postgres:
@@ -48,25 +47,9 @@ services:
       dockerfile: 'notification-service/Dockerfile'
     env_file:
       - .env
-    environment:
-      - BOT_NAME=${BOT_NAME}
-      - BOT_TOKEN=${BOT_TOKEN}
-      - BOT_WEBHOOK_PATH=${BOT_WEBHOOK_PATH}
     ports:
       - "8082:8082"
     restart: on-failure
-
-  cloudpub:
-    image: cloudpub/cloudpub:latest-arm64
-    restart: unless-stopped
-    environment:
-      - TOKEN=${CLOUDPUB_API_KEY}
-      - HTTP=notification-service:8082
-    command: run
-    depends_on:
-      - notification-service
-    volumes:
-      - cloudpub-config:/home/cloudpub
 
   broker:
     image: apache/kafka-native:latest
@@ -77,7 +60,8 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092
+      #KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093

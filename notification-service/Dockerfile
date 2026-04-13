@@ -1,14 +1,15 @@
 FROM gradle:9.4-jdk25 AS build
 
+ENV SERVICE_NAME=notification-service
+
 WORKDIR /app
 
 COPY gradle gradle
-COPY settings.gradle .
+COPY settings-docker.gradle settings.gradle
 COPY .env .
 
 COPY core core/
-
-COPY notification-service/src ./notification-service/src
+COPY notification-service notification-service/
 COPY notification-service/build.gradle.kts ./notification-service/
 
 RUN gradle :notification-service:build -x test --no-daemon

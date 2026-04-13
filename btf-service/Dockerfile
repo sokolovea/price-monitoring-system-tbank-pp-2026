@@ -1,11 +1,14 @@
 FROM gradle:9.4-jdk25 AS build
 
+ENV SERVICE_NAME=btf-service
+
 WORKDIR /app
 
 COPY gradle gradle
-COPY settings.gradle .
+COPY settings-docker.gradle settings.gradle
 COPY .env .
 
+COPY core core/
 COPY btf-service/src ./btf-service/src
 COPY btf-service/build.gradle.kts ./btf-service/
 
