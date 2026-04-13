@@ -12,3 +12,4 @@ external:
     wildberries:
       token: ${WB_ACCESS_TOKEN}
       dest: -5817683
+      userAgent: ${WB_USER_AGENT}

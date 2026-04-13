@@ -11,5 +11,6 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "external.provider.wildberries")
 public class WbProviderConfig {
     private String token;
+    private String userAgent;
     private Long dest;
 }
