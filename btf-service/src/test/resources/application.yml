@@ -2,27 +2,27 @@ spring:
   application:
     name: pp
 
-  config:
-    import: optional:file:application-local.yml
-
   datasource:
-    url: ${btf.spring.datasource.url}
-    username: ${btf.spring.datasource.username}
-    password: ${btf.spring.datasource.password}
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
     show-sql: true
 
+  liquibase:
+    enabled: false
+
 jwt:
-  secret: ${btf.jwt.secret}
-  expiration-ms: ${btf.jwt.expiration-ms}
+  secret: dGVzdC1zZWNyZXQta2V5LXRoYXQtaXMtYXQtbGVhc3QtMjU2LWJpdHMtbG9uZy1mb3ItaG1hYy1zaGEh
+  expiration-ms: 3600000
 
 server:
   port: 8081
