@@ -1,4 +1,4 @@
-package ru.tbank.pp.integration.dto;
+package ru.tbank.dto;
 
 import java.time.Instant;
 import lombok.Data;
@@ -11,20 +11,20 @@ public class PriceInfo {
     /**
      * Product sku
      */
-    String sku;
+    private String sku;
 
     /**
      * Product option id
      */
-    String optionId;
+    private String optionId;
 
     /**
      * Current price in RUB * 100. (i.e. 456.12 rub turns into 45612)
      */
-    Long price;
+    private Long price;
 
     /**
      * When was this information gathered
      */
-    Instant lastUpdate;
+    private Instant lastUpdate;
 }

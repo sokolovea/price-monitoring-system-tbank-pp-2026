@@ -1,15 +1,15 @@
 package ru.tbank.dto;
 
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class UpdateProductPriceResponseDto {
-    private Long productId;
+public class UpdatePriceResponse {
+    private Long id;
     private BigDecimal price;
-    private LocalDateTime date;
+    private Instant date;
 }

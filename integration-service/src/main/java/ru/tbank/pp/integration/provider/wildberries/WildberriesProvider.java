@@ -1,5 +1,6 @@
 package ru.tbank.pp.integration.provider.wildberries;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,20 +14,23 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import ru.tbank.dto.HasSku;
+import ru.tbank.dto.UpdatePriceRequest;
+import ru.tbank.dto.UpdatePriceResponse;
 import ru.tbank.pp.integration.config.WbProviderConfig;
-import ru.tbank.pp.integration.dto.NormalizedReference;
-import ru.tbank.pp.integration.dto.PriceInfo;
-import ru.tbank.pp.integration.dto.ProductInfo;
-import ru.tbank.pp.integration.dto.ProductReference;
+import ru.tbank.dto.NormalizedReference;
+import ru.tbank.dto.PriceInfo;
+import ru.tbank.dto.ProductInfo;
+import ru.tbank.dto.ProductReference;
 import ru.tbank.pp.integration.provider.ProductProvider;
-import ru.tbank.pp.integration.provider.ProviderType;
 import ru.tbank.pp.integration.provider.exception.InvalidProductReferenceException;
 import ru.tbank.pp.integration.provider.exception.ProductNotFoundException;
 import ru.tbank.pp.integration.provider.exception.ProviderCommunicationException;
 import ru.tbank.pp.integration.provider.wildberries.product.PriceSchema;
 import ru.tbank.pp.integration.provider.wildberries.product.ProductSchema;
-import ru.tbank.pp.integration.provider.wildberries.product.SizeSchema;
 import ru.tbank.pp.integration.provider.wildberries.product.Response;
+import ru.tbank.pp.integration.provider.wildberries.product.SizeSchema;
+import ru.tbank.pp.model.ProductsMarketplace;
 
 @Slf4j
 @Service
@@ -47,9 +51,9 @@ public class WildberriesProvider implements ProductProvider {
         }
     }
 
-    private String buildNmString(List<NormalizedReference> references) {
+    private String buildNmString(List<? extends HasSku> references) {
         return references.stream()
-                .map(NormalizedReference::getSku)
+                .map(HasSku::getSku)
                 .distinct()
                 .collect(Collectors.joining(";"));
     }
@@ -146,16 +150,15 @@ public class WildberriesProvider implements ProductProvider {
         return result;
     }
 
-    private PriceInfo parsePrice(ProductSchema product, String optionId, Instant lastUpdate) {
-        PriceInfo result = new PriceInfo();
-        result.setSku(product.getId().toString());
-        result.setLastUpdate(lastUpdate);
+    private UpdatePriceResponse parsePrice(ProductSchema product, Long id, String optionId, Instant lastUpdate) {
+        UpdatePriceResponse result = new UpdatePriceResponse();
+        result.setId(id);
+        result.setDate(lastUpdate);
 
         SizeSchema option = findOption(product, optionId);
         if (option != null) {
             PriceSchema price = option.getPrice();
-            result.setPrice(price.getProduct());
-            result.setOptionId(option.getOptionId().toString());
+            result.setPrice(BigDecimal.valueOf(price.getProduct(), 2));
         }
         return result;
     }
@@ -167,7 +170,7 @@ public class WildberriesProvider implements ProductProvider {
                 .brand(product.getBrand())
                 .rating(product.getReviewRating().toString())
                 .sku(product.getId().toString())
-                .marketplace(ProviderType.WILDBERRIES)
+                .marketplace(ProductsMarketplace.WILDBERRIES)
                 .imageUrl(imageService.getBigUrl(product.getId()))
                 .previewUrl(imageService.get268x328Url(product.getId()))
                 .build();
@@ -238,9 +241,11 @@ public class WildberriesProvider implements ProductProvider {
     }
 
     @Override
-    public List<PriceInfo> getPriceInfo(List<NormalizedReference> referenceList) {
-        Map<String, List<String>> skuToOptions = referenceList.stream()
-                .collect(Collectors.groupingBy(NormalizedReference::getSku, Collectors.mapping(NormalizedReference::getOptionId, Collectors.toList())));
+    public List<UpdatePriceResponse> getPriceInfo(List<UpdatePriceRequest> referenceList) {
+        Map<String, List<UpdatePriceRequest>> skuToOptions = referenceList.stream()
+                .collect(
+                        Collectors.groupingBy(UpdatePriceRequest::getSku)
+                );
 
         Response wbResponse = sendProductRequest(buildNmString(referenceList));
         if (wbResponse.getProducts().isEmpty()) {
@@ -249,11 +254,11 @@ public class WildberriesProvider implements ProductProvider {
         }
         Instant requestTime = Instant.now();
 
-        List<PriceInfo> result = new ArrayList<>(referenceList.size());
+        List<UpdatePriceResponse> result = new ArrayList<>(referenceList.size());
         wbResponse.getProducts().forEach(product ->
                 skuToOptions.get(product.getId().toString())
-                        .forEach(option ->
-                                result.add(parsePrice(product, option, requestTime))
+                        .forEach(priceObject ->
+                                result.add(parsePrice(product, priceObject.getId(), priceObject.getOptionId(), requestTime))
                         )
         );
         return result;

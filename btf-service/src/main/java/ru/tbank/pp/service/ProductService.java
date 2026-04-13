@@ -1,10 +1,11 @@
 package ru.tbank.pp.service;
 
 import jakarta.transaction.Transactional;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.tbank.dto.CreateProductDto;
-import ru.tbank.dto.UpdateProductPriceResponseDto;
+import ru.tbank.dto.UpdatePriceResponse;
 import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.entity.UserProduct;
 import ru.tbank.pp.entity.UserProductId;
@@ -142,10 +143,10 @@ public class ProductService {
         var product = productMapper.toProduct(createProductDto);
         product = productRepository.save(product);
 
-        var productPriceRequest = new UpdateProductPriceResponseDto();
-        productPriceRequest.setProductId(product.getId());
+        var productPriceRequest = new UpdatePriceResponse();
+        productPriceRequest.setId(product.getId());
         productPriceRequest.setPrice(createProductDto.getPrice());
-        productPriceRequest.setDate(LocalDateTime.now());
+        productPriceRequest.setDate(Instant.now());
 
         var productPrice = productPriceMapper.toProductPrice(productPriceRequest);
         productPriceRepository.save(productPrice);
@@ -169,7 +170,7 @@ public class ProductService {
 
 
 
-    private UserProduct getUserProduct(Long productId,Long userId) {
+    private UserProduct getUserProduct(Long productId, Long userId) {
         var userProductId = new UserProductId();
         userProductId.setUserId(userId);
         userProductId.setProductId(productId);
@@ -185,7 +186,7 @@ public class ProductService {
 
     private Product getProductByUrl(String url) { //todo обернуть в обьект
         var productOptional = productRepository.findByUrl(url);
-        System.out.println(url);
+        //System.out.println(url);
 
         if (productOptional.isEmpty()) {
             //todo добавление первоначальной информации о товаре

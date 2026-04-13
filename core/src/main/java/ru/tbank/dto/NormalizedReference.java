@@ -1,18 +1,18 @@
-package ru.tbank.pp.integration.dto;
+package ru.tbank.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
-import ru.tbank.pp.integration.provider.ProviderType;
+import ru.tbank.pp.model.ProductsMarketplace;
 
 @Data
 @AllArgsConstructor
-public class NormalizedReference {
+public class NormalizedReference implements HasSku {
     @NonNull
     String sku;
 
     @NonNull
-    ProviderType marketplace;
+    ProductsMarketplace marketplace;
 
     String optionId;
 }

@@ -7,12 +7,12 @@ spring:
 server:
   port: 8081
 
+kafka:
+  bootstrap-servers: localhost:9092
+
 external:
   provider:
     wildberries:
       token: ${WB_ACCESS_TOKEN}
       dest: -5817683
       userAgent: ${WB_USER_AGENT}
-
-  kafka:
-    bootstrap-servers: localhost:9092

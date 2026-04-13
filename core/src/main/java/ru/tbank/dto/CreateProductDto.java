@@ -1,9 +1,9 @@
 package ru.tbank.dto;
 
 import lombok.*;
-import ru.tbank.enums.Marketplace;
 
 import java.math.BigDecimal;
+import ru.tbank.pp.model.ProductsMarketplace;
 
 @Getter
 @Setter
@@ -11,7 +11,7 @@ public class CreateProductDto {
     private String brand;
     private String category;
     private String imageUrl;
-    private Marketplace marketplace;
+    private ProductsMarketplace marketplace;
     private String name;
     private Long optionId;
     private String optionName;

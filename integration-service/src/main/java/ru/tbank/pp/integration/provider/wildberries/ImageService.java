@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import ru.tbank.pp.integration.provider.exception.ProviderCommunicationException;
 import ru.tbank.pp.integration.provider.wildberries.image.Host;
 import ru.tbank.pp.integration.provider.wildberries.image.Method;
+import ru.tbank.pp.integration.provider.wildberries.image.MethodType;
 import ru.tbank.pp.integration.provider.wildberries.image.Response;
 
 @Getter
@@ -23,7 +25,7 @@ class ProductId {
 @RequiredArgsConstructor
 public class ImageService {
     private final RestClient restClient;
-    private List<Host> hosts;
+    private Method method;
 
     /**
      * To get vol out of product id you have to remove first five digits.
@@ -51,25 +53,19 @@ public class ImageService {
                 hostRequest.recommend == null ||
                 hostRequest.recommend.mediabasket_route_map == null) {
             log.error("Couldn't request hosts");
-            // TODO: Change runtime exception
-            throw new RuntimeException("Request failed");
-        }
-        Method result = hostRequest.recommend.mediabasket_route_map.stream()
-                .filter(routeMap -> routeMap.method.equals("range"))
-                .findFirst()
-                .orElse(null);
-        if (result == null) {
-            log.error("No \"range\" method found.");
-            throw new RuntimeException("Couldn't set hosts");
+            throw new ProviderCommunicationException("Request failed");
         }
 
-        hosts = result.hosts;
+        method = hostRequest.recommend.mediabasket_route_map.stream()
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.debug("Couldn't find mediabasket route map.");
+                    return new ProviderCommunicationException("Couldn't find mediabasket_route_map");
+                });
     }
 
-    private String findHost(long vol) {
-        if (hosts == null || hosts.isEmpty()) {
-            setHosts();
-        }
+    private String findHostWithRange(long vol) {
+        List<Host> hosts = method.hosts;
 
         int left = -1;
         int right = hosts.size();
@@ -88,6 +84,26 @@ public class ImageService {
         return hosts.get(left).host;
     }
 
+    private String findHostWithMod(long part) {
+        int hostIdx = Math.toIntExact(part % method.hosts.size());
+        return method.hosts.get(hostIdx).host;
+    }
+
+    private String findHost(ProductId productId) {
+        if (method == null) {
+            setHosts();
+        }
+
+        return switch (method.method) {
+            case RANGE -> findHostWithRange(productId.vol);
+            case MOD -> findHostWithMod(productId.part);
+            case UNKNOWN -> {
+                log.debug("Unknown method {}", method);
+                throw new IllegalArgumentException("Unknown method");
+            }
+        };
+    }
+
     private ProductId parseId(long id) {
         long vol = id / VOL_IGNORE_LEN;
         long part = id / PART_IGNORE_LEN;
@@ -101,7 +117,7 @@ public class ImageService {
         ProductId product = parseId(productId);
         return UriComponentsBuilder.newInstance()
                 .scheme("https")
-                .host(findHost(product.vol))
+                .host(findHost(product))
                 .pathSegment(
                         "vol{vol}",
                         "part{part}",
