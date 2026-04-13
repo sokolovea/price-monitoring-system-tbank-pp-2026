@@ -31,10 +31,11 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.projectlombok:lombok")
-    //testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-    //testImplementation("org.springframework.boot:spring-boot-starter-jdbc-test")
-    //testImplementation("org.springframework.boot:spring-boot-starter-web-test")
+    
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito:mockito-junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    
     //kafka
     implementation("org.springframework.kafka:spring-kafka")
     implementation(project(":core"))
