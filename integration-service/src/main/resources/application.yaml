@@ -5,7 +5,7 @@ spring:
     import: optional:file:.env
 
 server:
-  port: 8082
+  port: 8081
 
 external:
   provider:
@@ -13,3 +13,6 @@ external:
       token: ${WB_ACCESS_TOKEN}
       dest: -5817683
       userAgent: ${WB_USER_AGENT}
+
+  kafka:
+    bootstrap-servers: localhost:9092

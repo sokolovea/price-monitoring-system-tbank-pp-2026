@@ -6,6 +6,8 @@ COPY gradle gradle
 COPY settings.gradle .
 COPY .env .
 
+COPY core core/
+
 COPY notification-service/src ./notification-service/src
 COPY notification-service/build.gradle.kts ./notification-service/
 

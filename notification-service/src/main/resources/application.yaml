@@ -1,12 +1,25 @@
 spring:
   application:
     name: notification-service
+  config:
+    import: optional:file:.env[.properties]
 
 server:
-  port: 8081
+  port: 8082
 
 bot:
   name: ${BOT_NAME}
   token: ${BOT_TOKEN}
   webhook-path: ${BOT_WEBHOOK_PATH}
   base-url: ${BOT_BASE_URL}
+api:
+  base-url: ${API_BASE_URL}
+
+logging:
+  level:
+    root: INFO
+    ru.tbank: DEBUG
+    ru.tbank.pp.service: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
