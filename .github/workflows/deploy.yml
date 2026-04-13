@@ -1,36 +1,88 @@
-name: Deploy Project
+name: Build, Test and Deploy
 
 on:
   push:
     branches:
+      - main
       - develop
       - feature/PMSYS-28
+  pull_request:
+    branches:
+      - main
+      - develop
+
+env:
+  JAVA_VERSION: '25'
 
 jobs:
-  build:
-    runs-on: self-hosted
+  test:
+    name: Build and Test - ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - btf-service
+          - integration-service
+          - notification-service
+      fail-fast: false
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build ${{ matrix.service }}
+        run: ./gradlew :${{ matrix.service }}:build -x test
+
+      - name: Run tests for ${{ matrix.service }}
+        run: ./gradlew :${{ matrix.service }}:test
+
+  deploy:
+    name: Deploy to Server
+    runs-on: self-hosted
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Create .env file from secrets
         run: |
-            cat > .env << EOF
-            BOT_NAME=${{ secrets.BOT_NAME }}
-            BOT_TOKEN=${{ secrets.BOT_TOKEN }}
-            BOT_BASE_URL=${{ secrets.SERVER_IP }}:443
-            EOF
+          cat > .env << EOF
+          BOT_TOKEN=${{ secrets.BOT_TOKEN }}
+          BOT_NAME=${{ secrets.BOT_NAME }}
+          
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          
+          API_BASE_URL=${{ vars.API_BASE_URL }}
+          NOTIFICATION_API_BASE_URL=${{ vars.NOTIFICATION_API_BASE_URL }}
+          
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          
+          YANDEX_API_URL=${{ vars.YANDEX_API_URL }}
+          YANDEX_API_KEY=${{ secrets.YANDEX_API_KEY }}
+          YANDEX_FOLDER_ID=${{ secrets.YANDEX_FOLDER_ID }}
+          YANDEX_COMMAND_PATH_FOR_DOCKER=${{ vars.YANDEX_COMMAND_PATH_FOR_DOCKER }}
+          YANDEX_COMMAND_PATH_FOR_IDE=${{ vars.YANDEX_COMMAND_PATH_FOR_IDE }}
+          YANDEX_MODEL=${{ vars.YANDEX_MODEL }}
+          EOF
 
-      - name: Build with docker-compose
-        run: |
-          docker-compose down
-          docker-compose up -d --build
+      - name: Stop existing containers
+        run: docker compose down || true
 
-      - name: Install certificates for telegram
-        run: |
-          curl -F "url=https://${{secrets.SERVER_IP}}:443/callback" \
-               -F "certificate=@/home/github-runner/certs/certificate.pem" \
-               https://api.telegram.org/bot${{secrets.BOT_TOKEN}}/setWebhook
+      - name: Build and start services
+        run: docker compose up -d --build
 
-      - name: Check Telegram webhook info
-        run: |
-          curl https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/getWebhookInfo
+      - name: Check service status
+        run: docker compose ps
