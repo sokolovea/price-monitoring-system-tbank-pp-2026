@@ -29,7 +29,10 @@ dependencies {
     implementation("org.telegram:telegrambots:6.9.7.1")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-    //testImplementation("org.springframework.boot:spring-boot-starter-web-test")
+    
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito:mockito-core")
+    testImplementation("org.mockito:mockito-junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation(project(":core"))
 }
