@@ -82,10 +82,11 @@ jobs:
         run: docker compose down || true
 
       - name: Build and start services
-        run: docker compose build btf-service
-             docker compose build integration-service
-             docker compose build notification-service
-             docker compose up -d
+        run: |
+          docker compose build btf-service
+          docker compose build integration-service
+          docker compose build notification-service
+          docker compose up -d
 
       - name: Check service status
         run: docker compose ps
