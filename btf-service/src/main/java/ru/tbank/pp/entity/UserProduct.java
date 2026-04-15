@@ -32,7 +32,7 @@ public class UserProduct {
     private Product product;
 
     @Column(nullable = false)
-    private boolean notify;
+    private Boolean notify;
 
     @Column(name = "threshold_price")
     private BigDecimal thresholdPrice;

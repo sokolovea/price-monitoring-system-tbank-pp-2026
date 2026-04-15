@@ -17,8 +17,7 @@ public class ProductInfo {
     private ProductsMarketplace marketplace;
 
     private Long price;
-    private String optionId;
-    private String optionName;
+    private String optionId; private String optionName;
 
     private String imageUrl;
     private String previewUrl;

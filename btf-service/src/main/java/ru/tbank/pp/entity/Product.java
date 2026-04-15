@@ -31,19 +31,19 @@ public class Product {
     private String url;
 
     @Column(nullable = false)
-    private Long article;
+    private String article;
 
     @Column(nullable = false)
     private String description;
 
     @Column(name = "is_tracked", nullable = false)
-    private boolean isTracked;
+    private Boolean isTracked;
 
     @Column(name = "option_name", nullable = false)
     private String optionName;
 
     @Column(name = "option_id", nullable = false)
-    private Long optionId;
+    private String optionId;
 
     @Column(nullable = false)
     private String name;

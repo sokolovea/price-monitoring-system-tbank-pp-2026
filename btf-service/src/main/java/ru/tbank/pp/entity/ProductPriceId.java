@@ -2,12 +2,10 @@ package ru.tbank.pp.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.time.Instant;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Data
 @Embeddable
@@ -17,5 +15,5 @@ public class ProductPriceId implements Serializable {
     private Long productId;
 
     @Column(name = "check_date")
-    private LocalDateTime checkDate;
+    private Instant checkDate;
 }

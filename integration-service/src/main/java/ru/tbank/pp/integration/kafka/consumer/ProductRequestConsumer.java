@@ -12,8 +12,8 @@ import ru.tbank.pp.integration.kafka.producer.ProductResponseProducer;
 @Component
 @RequiredArgsConstructor
 public class ProductRequestConsumer {
-    ProductHandler productHandler;
-    ProductResponseProducer responseProducer;
+    private final ProductHandler productHandler;
+    private final ProductResponseProducer responseProducer;
 
     private static final String GROUP = "product-group";
     private static final String TOPIC = "product-update-request";

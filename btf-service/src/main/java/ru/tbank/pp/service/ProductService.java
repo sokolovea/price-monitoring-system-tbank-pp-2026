@@ -1,10 +1,11 @@
 package ru.tbank.pp.service;
 
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.tbank.dto.CreateProductDto;
+import ru.tbank.dto.ProductInfo;
 import ru.tbank.dto.UpdatePriceResponse;
 import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.entity.UserProduct;
@@ -18,7 +19,6 @@ import ru.tbank.pp.repository.ProductPriceRepository;
 import ru.tbank.pp.repository.ProductRepository;
 import ru.tbank.pp.repository.UserProductRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -135,17 +135,17 @@ public class ProductService {
 
         userProduct.setNotify(Boolean.FALSE);
 
-        return userProductRepository.save(userProduct).isNotify();
+        return userProductRepository.save(userProduct).getNotify();
     }
 
     @Transactional
-    public void createNewProduct(CreateProductDto createProductDto) {
+    public void createNewProduct(ProductInfo createProductDto) {
         var product = productMapper.toProduct(createProductDto);
         product = productRepository.save(product);
 
         var productPriceRequest = new UpdatePriceResponse();
         productPriceRequest.setId(product.getId());
-        productPriceRequest.setPrice(createProductDto.getPrice());
+        productPriceRequest.setPrice(BigDecimal.valueOf(createProductDto.getPrice(), 2));
         productPriceRequest.setDate(Instant.now());
 
         var productPrice = productPriceMapper.toProductPrice(productPriceRequest);
