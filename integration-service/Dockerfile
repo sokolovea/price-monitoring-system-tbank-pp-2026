@@ -1,11 +1,14 @@
 FROM gradle:9.4-jdk25 AS build
 
+ENV SERVICE_NAME=integration-service
+
 WORKDIR /app
 
 COPY gradle gradle
-COPY settings.gradle .
+COPY settings-docker.gradle settings.gradle
 COPY .env .
 
+COPY core core/
 COPY integration-service/src ./integration-service/src
 COPY integration-service/build.gradle.kts ./integration-service/
 

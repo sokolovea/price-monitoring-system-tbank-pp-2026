@@ -6,4 +6,6 @@ spring:
     name: integration-service
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: broker:9092
+    #bootstrap-servers: localhost:9092
+
