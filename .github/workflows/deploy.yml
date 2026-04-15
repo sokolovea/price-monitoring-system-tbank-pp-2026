@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - develop
       - feature/PMSYS-28
   pull_request:
     branches:
@@ -81,12 +80,14 @@ jobs:
       - name: Stop existing containers
         run: docker compose down || true
 
-      - name: Build and start services
+      - name: Build services
         run: |
           docker compose build btf-service
           docker compose build integration-service
           docker compose build notification-service
-          docker compose up -d
+
+      - name: Start services
+        run: docker compose up -d
 
       - name: Check service status
         run: docker compose ps
