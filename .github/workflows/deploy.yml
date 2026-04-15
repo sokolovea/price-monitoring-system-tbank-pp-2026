@@ -48,6 +48,7 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: self-hosted
+    needs: test
     if: github.event_name == 'push'
 
     steps:
