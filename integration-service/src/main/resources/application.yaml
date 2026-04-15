@@ -1,13 +1,14 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: integration-service
-  kafka:
-    bootstrap-servers: localhost:9092
-  config:
-    import: optional:file:.env
 
-server:
-  port: 8081
+  kafka:
+    bootstrap-servers: broker:9092
+    #bootstrap-servers: localhost:9092
+
 
 
 
