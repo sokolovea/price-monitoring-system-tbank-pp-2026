@@ -95,9 +95,9 @@ public class ImageService {
         }
 
         return switch (method.method) {
-            case RANGE -> findHostWithRange(productId.vol);
-            case MOD -> findHostWithMod(productId.part);
-            case UNKNOWN -> {
+            case MethodType.RANGE -> findHostWithRange(productId.vol);
+            case MethodType.MOD -> findHostWithMod(productId.part);
+            case MethodType.UNKNOWN -> {
                 log.debug("Unknown method {}", method);
                 throw new IllegalArgumentException("Unknown method");
             }

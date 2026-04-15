@@ -55,7 +55,6 @@ public class ProductMapper {
         product.setName(createProductDto.getName());
         product.setBrand(createProductDto.getBrand());
         product.setArticle(createProductDto.getSku());
-        product.setDescription(createProductDto.getName());//todo подогнать dto
         product.setMarketplace(ProductsMarketplace.fromValue(createProductDto.getMarketplace().toString()));
         product.setUrl(createProductDto.getUrl());
         product.setOptionId(createProductDto.getOptionId());

@@ -1,5 +1,6 @@
 package ru.tbank.pp.mapper;
 
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.tbank.dto.UpdatePriceResponse;
@@ -25,7 +26,8 @@ public class ProductPriceMapper {
     public ProductPrice toProductPrice(UpdatePriceResponse updatePriceResponse) {
         var productPriceId = new ProductPriceId();
         productPriceId.setProductId(updatePriceResponse.getId());
-        productPriceId.setCheckDate(updatePriceResponse.getDate());
+        //todo
+        productPriceId.setCheckDate(LocalDateTime.from(updatePriceResponse.getDate()));
 
         var product = productRepository.findById(productPriceId.getProductId()).orElseThrow(
                 () -> new ProductNotFoundException(
