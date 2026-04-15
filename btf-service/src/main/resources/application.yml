@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: btf-service
+  kafka:
+    bootstrap-servers: broker:9092
+    #bootstrap-servers: localhost:9092
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: jdbc:postgresql://pricehunter-db:5432/${POSTGRES_DB}
+    #url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+    default-schema: public
+    drop-first: false
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+
+server:
+  port: 8080
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: 1800000
+
+notification-api:
+  base-url: ${NOTIFICATION_API_BASE_URL}
+
+yandex:
+  api-url: ${YANDEX_API_URL}
+  api-key: ${YANDEX_API_KEY}
+  folder-id: ${YANDEX_FOLDER_ID}
+  command-path-for-docker: ${YANDEX_COMMAND_PATH_FOR_DOCKER}
+  command-path-for-ide: ${YANDEX_COMMAND_PATH_FOR_IDE}
+  model: ${YANDEX_MODEL}

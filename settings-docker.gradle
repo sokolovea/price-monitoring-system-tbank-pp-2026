@@ -1,0 +1,4 @@
+rootProject.name = 'pp'
+
+include 'core'
+include System.getenv('SERVICE_NAME')
