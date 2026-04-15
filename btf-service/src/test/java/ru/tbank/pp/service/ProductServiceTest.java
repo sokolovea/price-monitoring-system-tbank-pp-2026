@@ -80,7 +80,6 @@ class ProductServiceTest {
         testProduct.setBrand("Test Brand");
         testProduct.setUrl("https://example.com/product");
         testProduct.setArticle("12345");
-        testProduct.setDescription("Test Description");
         testProduct.setIsTracked(true);
         testProduct.setOptionName("Test Option");
         testProduct.setOptionId("100");

@@ -101,7 +101,6 @@ class ProductMapperTest {
         product.setBrand("Test Brand");
         product.setUrl("https://example.com/product");
         product.setArticle("12345");
-        product.setDescription("Test Description");
         product.setIsTracked(true);
         product.setOptionName("Test Option");
         product.setOptionId("100");

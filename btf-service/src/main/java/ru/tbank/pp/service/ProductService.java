@@ -3,10 +3,14 @@ package ru.tbank.pp.service;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.tbank.dto.ProductInfo;
+import ru.tbank.dto.ProductReference;
 import ru.tbank.dto.UpdatePriceResponse;
+import ru.tbank.pp.client.IntegrationClient;
 import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.entity.UserProduct;
 import ru.tbank.pp.entity.UserProductId;
@@ -21,6 +25,7 @@ import ru.tbank.pp.repository.UserProductRepository;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -35,6 +40,7 @@ public class ProductService {
     private final ProductPriceMapper productPriceMapper;
     private final UserProductMapper userProductMapper;
 
+    private final IntegrationClient integrationClient;
 
     public List<ProductsProduct> getAllUserProducts() {
         var user = userService.getUserFromCridentials();
@@ -168,8 +174,6 @@ public class ProductService {
         return productsOptional.stream().map(productMapper::toProductsProductDetail).toList();
     }
 
-
-
     private UserProduct getUserProduct(Long productId, Long userId) {
         var userProductId = new UserProductId();
         userProductId.setUserId(userId);
@@ -186,13 +190,33 @@ public class ProductService {
 
     private Product getProductByUrl(String url) { //todo обернуть в обьект
         var productOptional = productRepository.findByUrl(url);
-        //System.out.println(url);
 
+        Product result;
         if (productOptional.isEmpty()) {
-            //todo добавление первоначальной информации о товаре
+            ProductReference productReference = new ProductReference();
+            productReference.setUrl(url);
+
+            Optional<ProductInfo> requestResult = integrationClient.sendProductRequest(productReference);
+            Instant responseTimestamp = Instant.now();
+            if (requestResult.isEmpty()) {
+                log.debug("Request for product failed! Product url: {}", url);
+                //todo что-то с этим сдлеать
+                throw new RuntimeException("Couldn't get product.");
+            }
+
+            result = productRepository.save(productMapper.toProduct(requestResult.get()));
+            
+            //todo вынести в маппер (?)
+            UpdatePriceResponse firstPrice = new UpdatePriceResponse();
+            firstPrice.setDate(responseTimestamp);
+            firstPrice.setId(result.getId());
+            firstPrice.setPrice(BigDecimal.valueOf(requestResult.get().getPrice(), 2));
+            productPriceRepository.save(productPriceMapper.toProductPrice(firstPrice));
+        } else {
+            result = productOptional.get();
         }
 
-        return productOptional.get();
+        return result;
     }
 
 

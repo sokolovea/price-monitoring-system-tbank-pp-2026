@@ -15,11 +15,11 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.tbank.dto.HasSku;
+import ru.tbank.dto.SimilarProducts;
 import ru.tbank.dto.UpdatePriceRequest;
 import ru.tbank.dto.UpdatePriceResponse;
 import ru.tbank.pp.integration.config.WbProviderConfig;
 import ru.tbank.dto.NormalizedReference;
-import ru.tbank.dto.PriceInfo;
 import ru.tbank.dto.ProductInfo;
 import ru.tbank.dto.ProductReference;
 import ru.tbank.pp.integration.provider.ProductProvider;
@@ -265,7 +265,7 @@ public class WildberriesProvider implements ProductProvider {
     }
 
     @Override
-    public List<ProductInfo> getSimilarProducts(NormalizedReference productReference) {
+    public SimilarProducts getSimilarProducts(NormalizedReference productReference) {
         List<Long> ids = sendIdenticalProductRequest(Long.parseLong(productReference.getSku()));
         Response wbResponse = sendProductRequest(buildNmStringFromIds(ids));
         if (wbResponse.getProducts().isEmpty()) {
@@ -273,8 +273,10 @@ public class WildberriesProvider implements ProductProvider {
             throw new ProductNotFoundException("Similar products not found: " + productReference.getSku());
         }
 
-        return wbResponse.getProducts().stream()
+        return new SimilarProducts(
+                wbResponse.getProducts().stream()
                 .map(product -> parseInfo(product, null))
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toCollection(ArrayList::new))
+        );
     }
 }

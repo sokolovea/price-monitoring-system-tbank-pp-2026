@@ -34,6 +34,9 @@ jwt:
 notification-api:
   base-url: ${NOTIFICATION_API_BASE_URL}
 
+integration-api:
+  base-url: ${INTEGRATION_API_BASE_URL}
+
 yandex:
   api-url: ${YANDEX_API_URL}
   api-key: ${YANDEX_API_KEY}

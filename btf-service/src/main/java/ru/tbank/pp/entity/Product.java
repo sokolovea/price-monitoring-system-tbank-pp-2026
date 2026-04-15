@@ -33,9 +33,6 @@ public class Product {
     @Column(nullable = false)
     private String article;
 
-    @Column(nullable = false)
-    private String description;
-
     @Column(name = "is_tracked", nullable = false)
     private Boolean isTracked;
 

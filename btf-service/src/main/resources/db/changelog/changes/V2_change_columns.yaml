@@ -16,3 +16,7 @@ databaseChangeLog:
         - dropNotNullConstraint:
             tableName: product
             columnName: option_id
+
+        - dropColumn:
+            tableName: product
+            columnName: description

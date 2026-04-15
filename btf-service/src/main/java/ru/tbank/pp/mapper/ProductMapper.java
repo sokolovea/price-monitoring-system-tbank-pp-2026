@@ -59,6 +59,8 @@ public class ProductMapper {
         product.setUrl(createProductDto.getUrl());
         product.setOptionId(createProductDto.getOptionId());
         product.setOptionName(createProductDto.getOptionName());
+        product.setImage(createProductDto.getImageUrl());
+        product.setIsTracked(false);
 
         return product;
     }
