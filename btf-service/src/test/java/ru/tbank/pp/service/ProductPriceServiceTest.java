@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.tbank.dto.UpdatePriceResponse;
+import ru.tbank.dto.UpdateProductPriceResponseDto;
 import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.entity.ProductPrice;
 import ru.tbank.pp.entity.ProductPriceId;
@@ -19,7 +19,6 @@ import ru.tbank.pp.repository.UserNotificationRepository;
 import ru.tbank.pp.repository.UserProductRepository;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +50,7 @@ class ProductPriceServiceTest {
 
     private Product testProduct;
     private ProductPrice testProductPrice;
-    private UpdatePriceResponse priceResponseDto;
+    private UpdateProductPriceResponseDto priceResponseDto;
 
     @BeforeEach
     void setUp() {
@@ -64,15 +63,15 @@ class ProductPriceServiceTest {
         testProductPrice = new ProductPrice();
         ProductPriceId productPriceId = new ProductPriceId();
         productPriceId.setProductId(1L);
-        productPriceId.setCheckDate(Instant.EPOCH);
+        productPriceId.setCheckDate(LocalDateTime.now());
         testProductPrice.setId(productPriceId);
         testProductPrice.setProduct(testProduct);
         testProductPrice.setPrice(new BigDecimal("1000.00"));
 
-        priceResponseDto = new UpdatePriceResponse();
-        priceResponseDto.setId(1L);
+        priceResponseDto = new UpdateProductPriceResponseDto();
+        priceResponseDto.setProductId(1L);
         priceResponseDto.setPrice(new BigDecimal("900.00"));
-        priceResponseDto.setDate(Instant.EPOCH);
+        priceResponseDto.setDate(LocalDateTime.now());
     }
 
     @Test

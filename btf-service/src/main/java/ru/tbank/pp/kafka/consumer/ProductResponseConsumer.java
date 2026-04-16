@@ -3,7 +3,7 @@ package ru.tbank.pp.kafka.consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.tbank.dto.UpdatePriceResponse;
+import ru.tbank.dto.UpdateProductPriceResponseDto;
 
 @Slf4j
 @Component
@@ -16,11 +16,11 @@ public class ProductResponseConsumer {
             groupId = GROUP,
             containerFactory = "kafkaListenerFactory"
     )
-    public void consume(UpdatePriceResponse updatePriceResponse) {
+    public void consume(UpdateProductPriceResponseDto updateProductPriceResponseDto) {
         log.info("Consumer received update product \nID: {}, \nPrice: {}, \nDate: {}",
-                updatePriceResponse.getId(),
-                updatePriceResponse.getPrice(),
-                updatePriceResponse.getDate()
+                updateProductPriceResponseDto.getProductId(),
+                updateProductPriceResponseDto.getPrice(),
+                updateProductPriceResponseDto.getDate()
         );
     }
 }

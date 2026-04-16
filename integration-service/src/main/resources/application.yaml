@@ -9,12 +9,3 @@ spring:
     bootstrap-servers: broker:9092
     #bootstrap-servers: localhost:9092
 
-
-
-
-external:
-  provider:
-    wildberries:
-      token: ${WB_ACCESS_TOKEN}
-      dest: -5817683
-      userAgent: ${WB_USER_AGENT}

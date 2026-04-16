@@ -2,7 +2,7 @@
 Project development workshop. Tbank, winter 2026.
 
 # BTF SERVICE
-Сразу скопированная ветка работать не будет, необходимо сгенерировать api при помощи gradle задач (core->tasks->openapi tools->openApiGenerate) полче чего в папке build появится шаблон
+Сразу скопированная ветка работать не будет, необходимо сгенерировать api при помощи gradle задач (btf-service->tasks->openapi tools->openApiGenerate) полче чего в папке build появится шаблон
 
 # NOTIFICATION SERVICE
 # Ручная проверка и установка вебхука для телеграма

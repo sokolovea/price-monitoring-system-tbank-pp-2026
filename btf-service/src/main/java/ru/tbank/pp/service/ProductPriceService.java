@@ -3,7 +3,7 @@ package ru.tbank.pp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.tbank.dto.NotificationRequestDto;
-import ru.tbank.dto.UpdatePriceResponse;
+import ru.tbank.dto.UpdateProductPriceResponseDto;
 import ru.tbank.pp.client.NotificationClient;
 import ru.tbank.pp.entity.ProductPrice;
 import ru.tbank.pp.entity.UserNotificationId;
@@ -35,12 +35,12 @@ public class ProductPriceService {
         return productPriceRepository.findByProductIdOrderByIdCheckDateDesc(productId);
     }
 
-    public void setProductPrice(UpdatePriceResponse updatePriceResponse) {
-        var productPrice = productPriceMapper.toProductPrice(updatePriceResponse);
+    public void setProductPrice(UpdateProductPriceResponseDto updateProductPriceResponseDto) {
+        var productPrice = productPriceMapper.toProductPrice(updateProductPriceResponseDto);
         productPrice = productPriceRepository.save(productPrice);
 
-        var productId = updatePriceResponse.getId();
-        var price = updatePriceResponse.getPrice();
+        var productId = updateProductPriceResponseDto.getProductId();
+        var price = updateProductPriceResponseDto.getPrice();
 
         var users = userProductRepository.findUserIdsForNotification(productId, price);
         var product = productPrice.getProduct();
