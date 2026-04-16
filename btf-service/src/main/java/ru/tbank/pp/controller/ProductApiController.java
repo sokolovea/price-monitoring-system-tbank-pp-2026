@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tbank.pp.api.ProductsApi;
 import ru.tbank.pp.model.*;
+import ru.tbank.pp.service.GptHelperService;
 import ru.tbank.pp.service.ProductService;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductApiController implements ProductsApi {
     private final ProductService productService;
+    private final GptHelperService gptHelperService;
 
     @Override
     public ResponseEntity<List<ProductsProductForUpdate>> productsGetProductsForUpdate() {
@@ -59,5 +61,15 @@ public class ProductApiController implements ProductsApi {
     @Override
     public ResponseEntity<List<ProductsProductDetail>> productsProductCompare(ProductsIdList productsIdList) {
         return ResponseEntity.of(Optional.of(productService.getProductDetailList(productsIdList.getIds())));
+    }
+
+    @Override
+    public ResponseEntity<ProductsGptResponse> productsGetGptHelp(ProductsIdList productsIdList) {
+        return ResponseEntity.of(Optional.of(gptHelperService.getGptResponse(productsIdList)));
+    }
+
+    @Override
+    public ResponseEntity<ProductsProductRecommendations> productsGetRelatedProducts(Long productId, Integer limit, Integer offset) {
+        return ProductsApi.super.productsGetRelatedProducts(productId, limit, offset);
     }
 }

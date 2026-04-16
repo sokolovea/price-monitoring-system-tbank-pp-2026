@@ -75,7 +75,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/service/**",
-                                "/gpt"
+                                "/products/compare/recommendation"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
