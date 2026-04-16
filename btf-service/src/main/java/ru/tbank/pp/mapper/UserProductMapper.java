@@ -1,7 +1,6 @@
 package ru.tbank.pp.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.tbank.pp.entity.User;
 import ru.tbank.pp.entity.UserProduct;
 import ru.tbank.pp.model.ProductsNotification;
 
@@ -9,7 +8,7 @@ import ru.tbank.pp.model.ProductsNotification;
 public class UserProductMapper {
     public ProductsNotification toProductsNotification(UserProduct userProduct) {
         var productsNotification = new ProductsNotification();
-        productsNotification.setEnabled(userProduct.isNotify());
+        productsNotification.setEnabled(userProduct.getNotify());
         productsNotification.setThresholdPrice(userProduct.getThresholdPrice());
         return productsNotification;
     }

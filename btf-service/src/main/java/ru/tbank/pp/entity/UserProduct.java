@@ -3,6 +3,7 @@ package ru.tbank.pp.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
@@ -22,14 +23,16 @@ public class UserProduct {
 
     @ManyToOne
     @MapsId("userId")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
     @MapsId("productId")
+    @JoinColumn(name = "product_id")
     private Product product;
 
     @Column(nullable = false)
-    private boolean notify;
+    private Boolean notify;
 
     @Column(name = "threshold_price")
     private BigDecimal thresholdPrice;

@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: change-column-type-1
+      author: Igor
+      changes:
+        - modifyDataType:
+            tableName: product
+            columnName: article
+            newDataType: VARCHAR(255)
+
+        - modifyDataType:
+            tableName: product
+            columnName: option_id
+            newDataType: VARCHAR(255)
+
+        - dropNotNullConstraint:
+            tableName: product
+            columnName: option_id
+
+        - dropColumn:
+            tableName: product
+            columnName: description

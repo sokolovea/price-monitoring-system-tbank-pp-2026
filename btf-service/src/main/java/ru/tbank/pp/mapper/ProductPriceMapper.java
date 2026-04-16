@@ -2,15 +2,13 @@ package ru.tbank.pp.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.tbank.dto.UpdateProductPriceResponseDto;
+import ru.tbank.dto.UpdatePriceResponse;
 import ru.tbank.pp.entity.ProductPrice;
 import ru.tbank.pp.entity.ProductPriceId;
 import ru.tbank.pp.exception.ProductNotFoundException;
 import ru.tbank.pp.model.ProductsPriceHistory;
 import ru.tbank.pp.repository.ProductRepository;
-import ru.tbank.pp.service.ProductService;
 
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 @Component
@@ -24,10 +22,10 @@ public class ProductPriceMapper {
         return productPriceHistory;
     }
 
-    public ProductPrice toProductPrice(UpdateProductPriceResponseDto updateProductPriceResponseDto) {
+    public ProductPrice toProductPrice(UpdatePriceResponse updatePriceResponse) {
         var productPriceId = new ProductPriceId();
-        productPriceId.setProductId(updateProductPriceResponseDto.getProductId());
-        productPriceId.setCheckDate(updateProductPriceResponseDto.getDate());
+        productPriceId.setProductId(updatePriceResponse.getId());
+        productPriceId.setCheckDate(updatePriceResponse.getDate());
 
         var product = productRepository.findById(productPriceId.getProductId()).orElseThrow(
                 () -> new ProductNotFoundException(
@@ -38,7 +36,7 @@ public class ProductPriceMapper {
         var productPrice = new ProductPrice();
         productPrice.setId(productPriceId);
         productPrice.setProduct(product);
-        productPrice.setPrice(updateProductPriceResponseDto.getPrice());
+        productPrice.setPrice(updatePriceResponse.getPrice());
 
         return productPrice;
     }

@@ -2,7 +2,7 @@ package ru.tbank.pp.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.tbank.dto.CreateProductDto;
+import ru.tbank.dto.ProductInfo;
 import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.model.*;
 import ru.tbank.pp.service.ProductPriceService;
@@ -50,16 +50,17 @@ public class ProductMapper {
         return productsProductPreview;
     }
 
-    public Product toProduct(CreateProductDto createProductDto) {
+    public Product toProduct(ProductInfo createProductDto) {
         var product = new Product();
         product.setName(createProductDto.getName());
         product.setBrand(createProductDto.getBrand());
         product.setArticle(createProductDto.getSku());
-        product.setDescription(createProductDto.getName());//todo подогнать dto
         product.setMarketplace(ProductsMarketplace.fromValue(createProductDto.getMarketplace().toString()));
         product.setUrl(createProductDto.getUrl());
         product.setOptionId(createProductDto.getOptionId());
         product.setOptionName(createProductDto.getOptionName());
+        product.setImage(createProductDto.getImageUrl());
+        product.setIsTracked(false);
 
         return product;
     }
