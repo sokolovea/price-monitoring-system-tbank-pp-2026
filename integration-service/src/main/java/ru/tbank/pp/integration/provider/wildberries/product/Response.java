@@ -1,0 +1,11 @@
+package ru.tbank.pp.integration.provider.wildberries.product;
+
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class Response {
+    List<ProductSchema> products;
+}

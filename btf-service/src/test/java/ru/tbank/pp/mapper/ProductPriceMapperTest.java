@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.tbank.dto.UpdateProductPriceResponseDto;
+import ru.tbank.dto.UpdatePriceResponse;
 import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.entity.ProductPrice;
 import ru.tbank.pp.entity.ProductPriceId;
@@ -15,6 +15,7 @@ import ru.tbank.pp.model.ProductsPriceHistory;
 import ru.tbank.pp.repository.ProductRepository;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,10 +46,10 @@ class ProductPriceMapperTest {
     void toProductPrice_Success() {
         Product product = createTestProduct();
 
-        UpdateProductPriceResponseDto dto = new UpdateProductPriceResponseDto();
-        dto.setProductId(1L);
+        UpdatePriceResponse dto = new UpdatePriceResponse();
+        dto.setId(1L);
         dto.setPrice(new BigDecimal("1000"));
-        dto.setDate(LocalDateTime.of(2026, 4, 12, 10, 0));
+        dto.setDate(Instant.EPOCH);
 
         when(productRepository.findById(1L)).thenReturn(java.util.Optional.of(product));
 
@@ -62,10 +63,10 @@ class ProductPriceMapperTest {
 
     @Test
     void toProductPrice_ProductNotFound_ThrowsException() {
-        UpdateProductPriceResponseDto dto = new UpdateProductPriceResponseDto();
-        dto.setProductId(99L);
+        UpdatePriceResponse dto = new UpdatePriceResponse();
+        dto.setId(99L);
         dto.setPrice(new BigDecimal("1000"));
-        dto.setDate(LocalDateTime.now());
+        dto.setDate(Instant.EPOCH);
 
         when(productRepository.findById(99L)).thenReturn(java.util.Optional.empty());
 
@@ -77,7 +78,7 @@ class ProductPriceMapperTest {
     private ProductPrice createTestProductPrice() {
         ProductPriceId productPriceId = new ProductPriceId();
         productPriceId.setProductId(1L);
-        productPriceId.setCheckDate(LocalDateTime.now());
+        productPriceId.setCheckDate(Instant.EPOCH);
 
         ProductPrice productPrice = new ProductPrice();
         productPrice.setId(productPriceId);
@@ -91,11 +92,9 @@ class ProductPriceMapperTest {
         product.setName("Test Product");
         product.setBrand("Test Brand");
         product.setUrl("https://example.com/product");
-        product.setArticle(12345L);
-        product.setDescription("Test Description");
-        product.setTracked(true);
+        product.setArticle("12345");
         product.setOptionName("Test Option");
-        product.setOptionId(100L);
+        product.setOptionId("100");
         product.setImage("https://example.com/image.jpg");
         product.setMarketplace(ProductsMarketplace.OZON);
         return product;

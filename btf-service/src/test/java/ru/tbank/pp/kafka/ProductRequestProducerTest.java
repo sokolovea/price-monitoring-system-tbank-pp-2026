@@ -6,10 +6,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
-import ru.tbank.dto.UpdateProductPriceRequestDto;
-import ru.tbank.dto.UpdateProductPriceRequestDtoList;
-import ru.tbank.enums.Marketplace;
+import ru.tbank.dto.UpdatePriceRequestList;
+import ru.tbank.dto.UpdatePriceResponse;
+import ru.tbank.dto.UpdatePriceRequest;
 import ru.tbank.pp.kafka.producer.ProductRequestProducer;
+import ru.tbank.pp.model.ProductsMarketplace;
 
 import java.util.List;
 
@@ -26,13 +27,13 @@ class ProductRequestProducerTest {
 
     @Test
     void produce_Success() {
-        UpdateProductPriceRequestDto dto = new UpdateProductPriceRequestDto();
+        UpdatePriceRequest dto = new UpdatePriceRequest();
         dto.setId(1L);
-        dto.setMarketplace(Marketplace.Ozon);
-        dto.setArticle(12345L);
-        dto.setOptionId(100L);
+        dto.setMarketplace(ProductsMarketplace.OZON);
+        dto.setSku("12345");
+        dto.setOptionId("100");
 
-        UpdateProductPriceRequestDtoList dtoList = new UpdateProductPriceRequestDtoList(List.of(dto));
+        UpdatePriceRequestList dtoList = new UpdatePriceRequestList(List.of(dto));
 
         productRequestProducer.produce(dtoList);
 
