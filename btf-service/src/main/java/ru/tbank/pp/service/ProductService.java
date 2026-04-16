@@ -188,7 +188,7 @@ public class ProductService {
         return userProductOptional.get();
     }
 
-    private Product getProductByUrl(String url) { //todo обернуть в обьект
+    private Product getProductByUrl(String url) {
         var productOptional = productRepository.findByUrl(url);
 
         Product result;

@@ -49,26 +49,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Authentication.AuthRequest'
-  /gpt:
-    post:
-      operationId: Gpt_getGptHelp
-      summary: Возвращает мнение GPT по поводу цены товара и его динамики
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Gpt.GptResponse'
-      tags:
-        - Gpt
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Gpt.IdList'
   /products:
     get:
       operationId: Products_getProducts
@@ -126,6 +106,26 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Products.IdList'
+  /products/compare/recommendation:
+    post:
+      operationId: Gpt_getGptHelp
+      summary: Возвращает мнение GPT по поводу цены товара и его динамики
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gpt.GptResponse'
+      tags:
+        - Gpt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Gpt.IdList'
   /products/for-update:
     get:
       operationId: Products_getProductsForUpdate
