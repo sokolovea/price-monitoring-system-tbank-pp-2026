@@ -1,14 +1,16 @@
 package ru.tbank.pp.service;
 
-import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.tbank.dto.ProductInfo;
-import ru.tbank.dto.UpdatePriceResponse;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import ru.tbank.dto.CreateProductDto;
+import ru.tbank.enums.Marketplace;
+import ru.tbank.dto.UpdateProductPriceResponseDto;
 import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.entity.ProductPrice;
 import ru.tbank.pp.entity.User;
@@ -25,6 +27,7 @@ import ru.tbank.pp.repository.ProductRepository;
 import ru.tbank.pp.repository.UserProductRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,10 +82,11 @@ class ProductServiceTest {
         testProduct.setName("Test Product");
         testProduct.setBrand("Test Brand");
         testProduct.setUrl("https://example.com/product");
-        testProduct.setArticle("12345");
-        testProduct.setIsTracked(true);
+        testProduct.setArticle(12345L);
+        testProduct.setDescription("Test Description");
+        testProduct.setTracked(true);
         testProduct.setOptionName("Test Option");
-        testProduct.setOptionId("100");
+        testProduct.setOptionId(100L);
         testProduct.setImage("https://example.com/image.jpg");
         testProduct.setMarketplace(ProductsMarketplace.OZON);
     }
@@ -118,7 +122,7 @@ class ProductServiceTest {
         ProductPrice productPrice = new ProductPrice();
         ProductPriceId productPriceId = new ProductPriceId();
         productPriceId.setProductId(1L);
-        productPriceId.setCheckDate(Instant.now());
+        productPriceId.setCheckDate(LocalDateTime.now());
         productPrice.setId(productPriceId);
         productPrice.setPrice(new BigDecimal("1000"));
         productPrice.setProduct(testProduct);
@@ -241,7 +245,7 @@ class ProductServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getEnabled()).isTrue();
         assertThat(result.getThresholdPrice()).isEqualByComparingTo(new BigDecimal("800"));
-        assertThat(userProduct.getNotify()).isTrue();
+        assertThat(userProduct.isNotify()).isTrue();
     }
 
     @Test
@@ -256,20 +260,20 @@ class ProductServiceTest {
         Boolean result = productService.unsubscribeNotification(1L);
 
         assertThat(result).isFalse();
-        assertThat(userProduct.getNotify()).isFalse();
+        assertThat(userProduct.isNotify()).isFalse();
     }
 
     @Test
     void createNewProduct_Success() {
-        ProductInfo createProductDto = ProductInfo.builder().build();
+        CreateProductDto createProductDto = new CreateProductDto();
         createProductDto.setName("New Product");
         createProductDto.setBrand("New Brand");
-        createProductDto.setSku("999");
+        createProductDto.setSku(999L);
         createProductDto.setUrl("https://example.com/new");
-        createProductDto.setMarketplace(ProductsMarketplace.WILDBERRIES);
-        createProductDto.setOptionId("200");
+        createProductDto.setMarketplace(Marketplace.Wildberries);
+        createProductDto.setOptionId(200L);
         createProductDto.setOptionName("New Option");
-        createProductDto.setPrice(1500L);
+        createProductDto.setPrice(new BigDecimal("1500"));
 
         Product newProduct = new Product();
         newProduct.setId(2L);
@@ -277,7 +281,7 @@ class ProductServiceTest {
 
         when(productMapper.toProduct(createProductDto)).thenReturn(newProduct);
         when(productRepository.save(newProduct)).thenReturn(newProduct);
-        when(productPriceMapper.toProductPrice(any(UpdatePriceResponse.class)))
+        when(productPriceMapper.toProductPrice(any(UpdateProductPriceResponseDto.class)))
                 .thenReturn(new ProductPrice());
         when(productPriceRepository.save(any(ProductPrice.class))).thenReturn(new ProductPrice());
 
