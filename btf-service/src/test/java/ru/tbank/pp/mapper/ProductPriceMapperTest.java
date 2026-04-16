@@ -93,7 +93,6 @@ class ProductPriceMapperTest {
         product.setBrand("Test Brand");
         product.setUrl("https://example.com/product");
         product.setArticle("12345");
-        product.setDescription("Test Description");
         product.setOptionName("Test Option");
         product.setOptionId("100");
         product.setImage("https://example.com/image.jpg");
