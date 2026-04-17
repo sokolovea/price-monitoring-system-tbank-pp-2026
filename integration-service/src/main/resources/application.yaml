@@ -4,18 +4,8 @@ server:
 spring:
   application:
     name: integration-service
-  config:
-    import: optional:file:.env[.properties]
+
   kafka:
     bootstrap-servers: broker:9092
     #bootstrap-servers: localhost:9092
 
-
-
-
-external:
-  provider:
-    wildberries:
-      token: ${WB_ACCESS_TOKEN}
-      dest: -5817683
-      user-agent: ${WB_USER_AGENT}

@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
-import ru.tbank.pp.properties.IntegrationApiProperties;
+import org.springframework.web.client.RestTemplate;
 import ru.tbank.pp.properties.NotificationApiProperties;
 import ru.tbank.pp.properties.YandexGptProperties;
 
@@ -13,7 +13,6 @@ import ru.tbank.pp.properties.YandexGptProperties;
 @RequiredArgsConstructor
 public class RestClientConfig {
     private final NotificationApiProperties notificationApiProperties;
-    private final IntegrationApiProperties integrationApiProperties;
     private final YandexGptProperties yandexGptProperties;
 
     @Bean
@@ -25,19 +24,12 @@ public class RestClientConfig {
     }
 
     @Bean
-    @Qualifier("integration")
-    public RestClient getIntegrationRestClient() {
-        return RestClient.builder()
-                .baseUrl(integrationApiProperties.getBaseUrl())
-                .build();
-    }
-
-    @Bean
     @Qualifier("yandex")
     public RestClient getYandexRestClient() {
         return RestClient.builder()
                 .baseUrl(yandexGptProperties.getApiUrl())
                 .build();
     }
+
 
 }
