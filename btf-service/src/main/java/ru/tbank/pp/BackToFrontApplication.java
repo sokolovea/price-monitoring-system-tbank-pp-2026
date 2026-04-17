@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import ru.tbank.config.KafkaConfig;
 
 
@@ -12,6 +13,7 @@ import ru.tbank.config.KafkaConfig;
 @SpringBootApplication
 @Import(KafkaConfig.class)
 @ConfigurationPropertiesScan
+@EnableScheduling
 public class BackToFrontApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BackToFrontApplication.class, args);
