@@ -85,7 +85,8 @@ public class WildberriesProvider implements ProductProvider {
         productReference.setOptionId(uri.getQueryParams().getFirst("size"));
     }
 
-    private Response sendProductRequest(String nm) { return restClient.get()
+    private Response sendProductRequest(String nm) {
+        return restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
                         .host("api-android.wildberries.ru")

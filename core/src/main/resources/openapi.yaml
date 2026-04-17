@@ -7,7 +7,6 @@ tags:
   - name: Authentication
   - name: ServiceConnection
   - name: User
-  - name: Gpt
 paths:
   /auth/login:
     post:
@@ -49,26 +48,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Authentication.AuthRequest'
-  /gpt:
-    post:
-      operationId: Gpt_getGptHelp
-      summary: Возвращает мнение GPT по поводу цены товара и его динамики
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Gpt.GptResponse'
-      tags:
-        - Gpt
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Gpt.IdList'
   /products:
     get:
       operationId: Products_getProducts
@@ -118,6 +97,26 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Products.ProductDetail'
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Products.IdList'
+  /products/compare/recommendation:
+    post:
+      operationId: Products_getGptHelp
+      summary: Возвращает мнение GPT по поводу цены товара и его динамики
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products.GptResponse'
       tags:
         - Products
       requestBody:
@@ -243,6 +242,40 @@ paths:
                 type: boolean
       tags:
         - Products
+  /products/{productId}/related:
+    get:
+      operationId: Products_getRelatedProducts
+      summary: Получение списка товаров, похожих на данный
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: limit
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+          explode: false
+        - name: offset
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products.ProductRecommendations'
+      tags:
+        - Products
   /service/check-status:
     post:
       operationId: ServiceConnection_checkStatus
@@ -316,23 +349,13 @@ components:
           type: string
         token:
           type: string
-    Gpt.GptResponse:
+    Products.GptResponse:
       type: object
       required:
         - gptOpinion
       properties:
         gptOpinion:
           type: string
-    Gpt.IdList:
-      type: object
-      required:
-        - ids
-      properties:
-        ids:
-          type: array
-          items:
-            type: integer
-            format: int64
     Products.IdList:
       type: object
       required:
@@ -527,6 +550,30 @@ components:
           type: number
           format: decimal
           example: 1450
+    Products.ProductRecommendations:
+      type: object
+      required:
+        - total
+        - limit
+        - offset
+        - items
+      properties:
+        total:
+          type: integer
+          format: int32
+          example: 12
+        limit:
+          type: integer
+          format: int32
+          example: 6
+        offset:
+          type: integer
+          format: int32
+          example: 0
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Products.Product'
     Products.Url:
       type: object
       required:

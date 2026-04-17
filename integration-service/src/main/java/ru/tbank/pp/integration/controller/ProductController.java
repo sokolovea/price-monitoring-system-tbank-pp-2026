@@ -35,7 +35,7 @@ public class ProductController {
 
     @PostMapping("/similar")
     public ResponseEntity<SimilarProducts> getSimilarProduct(@RequestBody ProductReference productReference) {
-        log.debug("Received get similar product request. Product reference: {}", productReference);
+        log.info("Received get similar product request. Product reference: {}", productReference);
         urlParser.setProvider(productReference);
         ProductProvider provider = providerFactory.getProvider(productReference.getMarketplace());
         SimilarProducts result = provider.getSimilarProducts(provider.normalize(productReference));

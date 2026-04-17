@@ -2,6 +2,7 @@ package ru.tbank.pp.service;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -62,20 +63,38 @@ public class ProductService {
         }
 
         var product = productOptional.get();
+        var productDetail = productMapper.toProductsProductDetail(product);
+
+        return setDetailParameters(productDetail, user.getId());
+    }
+
+    private ProductsProductDetail setDetailParameters(ProductsProductDetail productsProductDetail, Long userId) {
+        var productId = productsProductDetail.getId();
         var productPrices = productPriceService.getProductPrices(productId);
         var priceHistory = productPrices.stream()
                 .map(productPriceMapper::mapToProductsPriceHistory)
                 .toList();
 
-        var userProduct = getUserProduct(productId, user.getId());
+        var userProduct = getUserProduct(productId, userId);
 
         var productsNotification = userProductMapper.toProductsNotification(userProduct);
 
-        var productDetail = productMapper.toProductsProductDetail(product);
-        productDetail.setPriceHistory(priceHistory);
-        productDetail.setNotification(productsNotification);
+        if (priceHistory.size() >= 2) {
+            var lastPrice = priceHistory.getLast().getPrice();
+            var previousPrice = priceHistory.get(priceHistory.size() - 2).getPrice();
+            var priceChange = lastPrice.subtract(previousPrice);
+            var priceChangePercent = priceChange
+                    .divide(lastPrice, 4, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"))
+                    .setScale(2, RoundingMode.HALF_UP);
 
-        return productDetail;
+            productsProductDetail.setPriceChange(priceHistory.getLast().getPrice());
+            productsProductDetail.setPriceChangePercent(priceChangePercent.floatValue());
+        }
+
+        productsProductDetail.setPriceHistory(priceHistory);
+        productsProductDetail.setNotification(productsNotification);
+        return productsProductDetail;
     }
 
     @Transactional
@@ -167,11 +186,17 @@ public class ProductService {
     }
 
     public List<ProductsProductDetail> getProductDetailList(List<Long> ids) {
+        var user = userService.getUserFromCridentials();
+
         var productsOptional = productRepository.findAllById(ids);
         if (productsOptional.isEmpty()) {
             throw new ProductNotFoundException("Products not found");
         }
-        return productsOptional.stream().map(productMapper::toProductsProductDetail).toList();
+
+        return productsOptional.stream()
+                .map(productMapper::toProductsProductDetail)
+                .map(pd ->setDetailParameters(pd, user.getId()))
+                .toList();
     }
 
     private UserProduct getUserProduct(Long productId, Long userId) {
@@ -188,7 +213,7 @@ public class ProductService {
         return userProductOptional.get();
     }
 
-    private Product getProductByUrl(String url) { //todo обернуть в обьект
+    private Product getProductByUrl(String url) {
         var productOptional = productRepository.findByUrl(url);
 
         Product result;
@@ -219,6 +244,27 @@ public class ProductService {
         return result;
     }
 
+    public ProductsProductRecommendations getProductRecommendations(Long productId, Integer limit, Integer offset) {
+        var product = getProduct(productId);
+        var productReference = new ProductReference();
+        productReference.setUrl(product.getUrl());
+        //var productReference = productMapper.toProductReference(product);
+        var recommendationsOptional = integrationClient.sendSimilarRequest(productReference);
 
+        if (recommendationsOptional.isEmpty()) {
+            throw new ProductNotFoundException("Product Recommendations not found");
+        }
+        var recommendations = recommendationsOptional.get();
+
+        var products = recommendations.getProducts().stream().map(productMapper::toProductsProduct).toList();
+
+        var recommendationsRecommendations = new ProductsProductRecommendations();
+        recommendationsRecommendations.setTotal(products.size());
+        recommendationsRecommendations.setLimit(limit);
+        recommendationsRecommendations.setOffset(offset);
+        recommendationsRecommendations.setItems(products);
+        return recommendationsRecommendations;
+
+    }
 
 }
