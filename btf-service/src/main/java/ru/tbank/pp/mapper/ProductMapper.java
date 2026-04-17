@@ -9,6 +9,7 @@ import ru.tbank.pp.model.*;
 import ru.tbank.pp.service.ProductPriceService;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 
 @Component
@@ -21,7 +22,11 @@ public class ProductMapper {
         //productsProduct.setId(productInfo.getId());
         productsProduct.setName(productInfo.getName());
         productsProduct.setBrand(productInfo.getBrand());
-        productsProduct.setCurrentPrice(BigDecimal.valueOf(productInfo.getPrice()));
+        productsProduct.setCurrentPrice(
+                BigDecimal.valueOf(productInfo.getPrice())
+                        .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)
+
+        );
         productsProduct.setImage(productInfo.getImageUrl());
         productsProduct.setLastChecked(OffsetDateTime.now());
         productsProduct.setMarketplace(ProductsMarketplace.fromValue(productInfo.getMarketplace().toString()));
