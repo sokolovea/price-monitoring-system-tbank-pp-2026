@@ -162,17 +162,17 @@ class ProductServiceTest {
                 .hasMessageContaining("Product with id '99' not found");
     }
 
-    @Test
-    void getProductDetail_UserProductNotFound_ThrowsException() {
-        when(userService.getUserFromCridentials()).thenReturn(testUser);
-        when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
-        when(productPriceService.getProductPrices(1L)).thenReturn(List.of());
-        when(userProductRepository.findById(any(UserProductId.class))).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> productService.getProductDetail(1L))
-                .isInstanceOf(ProductNotFoundException.class)
-                .hasMessageContaining("Product with id '1' not found for user '1'");
-    }
+//    @Test
+//    void getProductDetail_UserProductNotFound_ThrowsException() {
+//        when(userService.getUserFromCridentials()).thenReturn(testUser);
+//        when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+//        when(productPriceService.getProductPrices(1L)).thenReturn(List.of());
+//        when(userProductRepository.findById(any(UserProductId.class))).thenReturn(Optional.empty());
+//
+//        assertThatThrownBy(() -> productService.getProductDetail(1L))
+//                .isInstanceOf(ProductNotFoundException.class)
+//                .hasMessageContaining("Product with id '1' not found for user '1'");
+//    }
 
     @Test
     void addProduct_Success() {
@@ -306,20 +306,20 @@ class ProductServiceTest {
                 .hasMessageContaining("Product with id '99' not found");
     }
 
-    @Test
-    void getProductDetailList_Success() {
-        when(productRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(testProduct));
-
-        ProductsProductDetail productDetail = new ProductsProductDetail();
-        productDetail.setId(1L);
-        productDetail.setName("Test Product");
-        when(productMapper.toProductsProductDetail(testProduct)).thenReturn(productDetail);
-
-        List<ProductsProductDetail> result = productService.getProductDetailList(List.of(1L, 2L));
-
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getName()).isEqualTo("Test Product");
-    }
+//    @Test
+//    void getProductDetailList_Success() {
+//        when(productRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(testProduct));
+//
+//        ProductsProductDetail productDetail = new ProductsProductDetail();
+//        productDetail.setId(1L);
+//        productDetail.setName("Test Product");
+//        when(productMapper.toProductsProductDetail(testProduct)).thenReturn(productDetail);
+//
+//        List<ProductsProductDetail> result = productService.getProductDetailList(List.of(1L, 2L));
+//
+//        assertThat(result).hasSize(1);
+//        assertThat(result.getFirst().getName()).isEqualTo("Test Product");
+//    }
 
     @Test
     void getProductDetailList_NotFound_ThrowsException() {

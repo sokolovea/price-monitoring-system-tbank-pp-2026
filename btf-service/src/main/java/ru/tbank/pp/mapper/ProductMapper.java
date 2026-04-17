@@ -3,16 +3,32 @@ package ru.tbank.pp.mapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.tbank.dto.ProductInfo;
+import ru.tbank.dto.ProductReference;
 import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.model.*;
 import ru.tbank.pp.service.ProductPriceService;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Component
 @RequiredArgsConstructor
 public class ProductMapper {
     private final ProductPriceService productPriceService;
+
+    public ProductsProduct toProductsProduct(ProductInfo productInfo) {
+        var productsProduct = new ProductsProduct();
+        //productsProduct.setId(productInfo.getId());
+        productsProduct.setName(productInfo.getName());
+        productsProduct.setBrand(productInfo.getBrand());
+        productsProduct.setCurrentPrice(BigDecimal.valueOf(productInfo.getPrice()));
+        productsProduct.setImage(productInfo.getImageUrl());
+        productsProduct.setLastChecked(OffsetDateTime.now());
+        productsProduct.setMarketplace(ProductsMarketplace.fromValue(productInfo.getMarketplace().toString()));
+        productsProduct.setNmId(Long.valueOf(productInfo.getSku()));
+        productsProduct.setUrl(productInfo.getUrl());
+        return productsProduct;
+    }
 
     public ProductsProduct toProductsProduct(Product product) {
         var productsProduct = new ProductsProduct();
@@ -63,5 +79,14 @@ public class ProductMapper {
         product.setIsTracked(false);
 
         return product;
+    }
+
+    public ProductReference toProductReference(Product product) {
+        var productReference = new ProductReference();
+        productReference.setMarketplace(product.getMarketplace());
+        productReference.setUrl(product.getUrl());
+        productReference.setSku(product.getArticle());
+        productReference.setOptionId(product.getOptionId());
+        return productReference;
     }
 }

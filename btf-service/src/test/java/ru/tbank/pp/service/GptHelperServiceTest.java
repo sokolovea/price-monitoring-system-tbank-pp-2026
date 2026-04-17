@@ -1,6 +1,5 @@
 package ru.tbank.pp.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,14 +11,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.tbank.pp.client.YandexClient;
 import ru.tbank.pp.dto.yandex.Message;
-import ru.tbank.pp.dto.yandex.request.CompletionOptions;
 import ru.tbank.pp.dto.yandex.request.YandexGptRequest;
 import ru.tbank.pp.dto.yandex.response.Alternative;
 import ru.tbank.pp.dto.yandex.response.Result;
 import ru.tbank.pp.dto.yandex.response.Usage;
 import ru.tbank.pp.dto.yandex.response.YandexGptResponse;
 import ru.tbank.pp.exception.YandexGptResponseNotFoundException;
-import ru.tbank.pp.model.GptIdList;
+import ru.tbank.pp.model.ProductsIdList;
 import ru.tbank.pp.model.ProductsProductDetail;
 import ru.tbank.pp.properties.YandexGptProperties;
 
@@ -71,7 +69,7 @@ class GptHelperServiceTest {
 
     @Test
     void getGptResponse_Success() {
-        GptIdList idList = new GptIdList();
+        ProductsIdList idList = new ProductsIdList();
         idList.setIds(List.of(1L, 2L));
 
         ProductsProductDetail product1 = new ProductsProductDetail();
@@ -111,7 +109,7 @@ class GptHelperServiceTest {
 
     @Test
     void getGptResponse_NullGptResponse_ThrowsException() {
-        GptIdList idList = new GptIdList();
+        ProductsIdList idList = new ProductsIdList();
         idList.setIds(List.of(1L));
 
         when(productService.getProductDetailList(List.of(1L)))
