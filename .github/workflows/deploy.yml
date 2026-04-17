@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature/PMSYS-28
+      - develop
   pull_request:
     branches:
       - main
