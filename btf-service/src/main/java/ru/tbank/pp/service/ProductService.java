@@ -92,7 +92,7 @@ public class ProductService {
             productsProductDetail.setPriceChange(priceHistory.getLast().getPrice());
             productsProductDetail.setPriceChangePercent(priceChangePercent.floatValue());
         }
-
+        productsProductDetail.lastChecked(priceHistory.getLast().getDate());
         productsProductDetail.setPriceHistory(priceHistory);
         productsProductDetail.setNotification(productsNotification);
         return productsProductDetail;

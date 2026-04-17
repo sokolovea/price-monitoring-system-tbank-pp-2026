@@ -56,7 +56,7 @@ public class ProductMapper {
         productsProductDetail.setBrand(product.getBrand());
         productsProductDetail.setCurrentPrice(productPriceService.getCurrentPrice(product.getId()));
         productsProductDetail.setImage(product.getImage());
-        productsProductDetail.setLastChecked(OffsetDateTime.now());
+        //productsProductDetail.setLastChecked(OffsetDateTime.now());
         productsProductDetail.setMarketplace(product.getMarketplace());
         productsProductDetail.setNmId(product.getId());
         productsProductDetail.setUrl(product.getUrl());
