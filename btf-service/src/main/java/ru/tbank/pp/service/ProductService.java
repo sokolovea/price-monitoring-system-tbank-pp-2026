@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.tbank.dto.ProductInfo;
 import ru.tbank.dto.ProductReference;
+import ru.tbank.dto.SearchQuery;
 import ru.tbank.dto.UpdatePriceResponse;
 import ru.tbank.pp.client.IntegrationClient;
 import ru.tbank.pp.entity.Product;
@@ -91,7 +92,7 @@ public class ProductService {
             productsProductDetail.setPriceChange(priceHistory.getLast().getPrice());
             productsProductDetail.setPriceChangePercent(priceChangePercent.floatValue());
         }
-
+        productsProductDetail.lastChecked(priceHistory.getLast().getDate());
         productsProductDetail.setPriceHistory(priceHistory);
         productsProductDetail.setNotification(productsNotification);
         return productsProductDetail;
@@ -246,10 +247,14 @@ public class ProductService {
 
     public ProductsProductRecommendations getProductRecommendations(Long productId, Integer limit, Integer offset) {
         var product = getProduct(productId);
-        var productReference = new ProductReference();
-        productReference.setUrl(product.getUrl());
-        //var productReference = productMapper.toProductReference(product);
-        var recommendationsOptional = integrationClient.sendSimilarRequest(productReference);
+        var searchQuery = new SearchQuery(
+                product.getName(),
+                product.getMarketplace(),
+                limit.longValue(),
+                1 + offset.longValue()
+        );
+
+        var recommendationsOptional = integrationClient.sendSearchRequest(searchQuery);
 
         if (recommendationsOptional.isEmpty()) {
             throw new ProductNotFoundException("Product Recommendations not found");
