@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import ru.tbank.dto.UpdatePriceRequestList;
+import ru.tbank.dto.UpdatePriceResponseList;
 import ru.tbank.pp.integration.kafka.ProductHandler;
 import ru.tbank.pp.integration.kafka.producer.ProductResponseProducer;
 
@@ -29,8 +30,9 @@ public class ProductRequestConsumer {
                 updatePriceRequestList.getItems().getLast().getId()
         );
 
-        responseProducer.produce(
+        UpdatePriceResponseList result = new UpdatePriceResponseList(
                 productHandler.getPrices(updatePriceRequestList.getItems())
         );
+        responseProducer.produce(result);
     }
 }
