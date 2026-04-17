@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - develop
   pull_request:
     branches:
       - main
@@ -67,6 +66,7 @@ jobs:
           
           API_BASE_URL=${{ vars.API_BASE_URL }}
           NOTIFICATION_API_BASE_URL=${{ vars.NOTIFICATION_API_BASE_URL }}
+          INTEGRATION_API_BASE_URL=${{vars.INTEGRATION_API_BASE_URL}}
           
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           
@@ -76,6 +76,9 @@ jobs:
           YANDEX_COMMAND_PATH_FOR_DOCKER=${{ vars.YANDEX_COMMAND_PATH_FOR_DOCKER }}
           YANDEX_COMMAND_PATH_FOR_IDE=${{ vars.YANDEX_COMMAND_PATH_FOR_IDE }}
           YANDEX_MODEL=${{ vars.YANDEX_MODEL }}
+          
+          WB_ACCESS_TOKEN=${{secrets.WB_ACCESS_TOKEN}}
+          WB_USER_AGENT=${{vars.WB_USER_AGENT}}
           EOF
 
       - name: Stop existing containers
