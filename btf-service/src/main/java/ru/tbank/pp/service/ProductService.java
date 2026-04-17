@@ -219,6 +219,27 @@ public class ProductService {
         return result;
     }
 
+    public ProductsProductRecommendations getProductRecommendations(Long productId, Integer limit, Integer offset) {
+        var product = getProduct(productId);
+        var productReference = new ProductReference();
+        productReference.setUrl(product.getUrl());
+        //var productReference = productMapper.toProductReference(product);
+        var recommendationsOptional = integrationClient.sendSimilarRequest(productReference);
 
+        if (recommendationsOptional.isEmpty()) {
+            throw new ProductNotFoundException("Product Recommendations not found");
+        }
+        var recommendations = recommendationsOptional.get();
+
+        var products = recommendations.getProducts().stream().map(productMapper::toProductsProduct).toList();
+
+        var recommendationsRecommendations = new ProductsProductRecommendations();
+        recommendationsRecommendations.setTotal(products.size());
+        recommendationsRecommendations.setLimit(limit);
+        recommendationsRecommendations.setOffset(offset);
+        recommendationsRecommendations.setItems(products);
+        return recommendationsRecommendations;
+
+    }
 
 }

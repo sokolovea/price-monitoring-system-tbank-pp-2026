@@ -70,6 +70,6 @@ public class ProductApiController implements ProductsApi {
 
     @Override
     public ResponseEntity<ProductsProductRecommendations> productsGetRelatedProducts(Long productId, Integer limit, Integer offset) {
-        return ProductsApi.super.productsGetRelatedProducts(productId, limit, offset);
+        return ResponseEntity.of(Optional.of(productService.getProductRecommendations(productId, limit, offset)));
     }
 }
