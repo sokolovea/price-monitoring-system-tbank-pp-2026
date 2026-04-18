@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,7 @@ public class ProductService {
 
         return userProducts.stream()
                 .map(up -> productMapper.toProductsProduct(up.getProduct()))
+                .map(this::setProductParameters)
                 .toList();
     }
 
@@ -69,11 +71,29 @@ public class ProductService {
         return setDetailParameters(productDetail, user.getId());
     }
 
+    private ProductsProduct setProductParameters(ProductsProduct productsProduct) {
+        var productId = productsProduct.getId();
+        var productPrices = productPriceService.getProductPrices(productId);
+        var priceHistory = productPrices.stream()
+                .map(productPriceMapper::mapToProductsPriceHistory)
+                .sorted(Comparator.comparing(ProductsPriceHistory::getDate).reversed())
+                .toList();
+        if (priceHistory.size() >= 2) {
+            var lastPrice = priceHistory.getLast().getPrice();
+            var previousPrice = priceHistory.get(priceHistory.size() - 2).getPrice();
+            var priceChange = lastPrice.subtract(previousPrice);
+            productsProduct.setPriceChange(priceChange);
+        }
+        productsProduct.setLastChecked(priceHistory.getLast().getDate());
+        return productsProduct;
+    }
+
     private ProductsProductDetail setDetailParameters(ProductsProductDetail productsProductDetail, Long userId) {
         var productId = productsProductDetail.getId();
         var productPrices = productPriceService.getProductPrices(productId);
         var priceHistory = productPrices.stream()
                 .map(productPriceMapper::mapToProductsPriceHistory)
+                .sorted(Comparator.comparing(ProductsPriceHistory::getDate).reversed())
                 .toList();
 
         var userProduct = getUserProduct(productId, userId);
@@ -89,7 +109,7 @@ public class ProductService {
                     .multiply(new BigDecimal("100"))
                     .setScale(2, RoundingMode.HALF_UP);
 
-            productsProductDetail.setPriceChange(priceHistory.getLast().getPrice());
+            productsProductDetail.setPriceChange(priceChange);
             productsProductDetail.setPriceChangePercent(priceChangePercent.floatValue());
         }
         productsProductDetail.lastChecked(priceHistory.getLast().getDate());
