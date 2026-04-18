@@ -25,6 +25,7 @@ import ru.tbank.pp.repository.ProductRepository;
 import ru.tbank.pp.repository.UserProductRepository;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,6 +66,9 @@ class ProductServiceTest {
 
     private User testUser;
     private Product testProduct;
+    private ProductPrice testProductPrice;
+    private ProductPriceId testProductPriceId;
+    private ProductsPriceHistory testProductsPriceHistory;
 
     @BeforeEach
     void setUp() {
@@ -85,6 +89,19 @@ class ProductServiceTest {
         testProduct.setOptionId("100");
         testProduct.setImage("https://example.com/image.jpg");
         testProduct.setMarketplace(ProductsMarketplace.OZON);
+
+        testProductPriceId = new ProductPriceId();
+        testProductPriceId.setProductId(testProduct.getId());
+        testProductPriceId.setCheckDate(Instant.now());
+
+        testProductPrice = new ProductPrice();
+        testProductPrice.setProduct(testProduct);
+        testProductPrice.setPrice(BigDecimal.valueOf(100));
+        testProductPrice.setId(testProductPriceId);
+
+        testProductsPriceHistory = new ProductsPriceHistory();
+        testProductsPriceHistory.setPrice(BigDecimal.valueOf(100));
+        testProductsPriceHistory.setDate(OffsetDateTime.now());
     }
 
     @Test
@@ -101,6 +118,8 @@ class ProductServiceTest {
         productsProduct.setId(1L);
         productsProduct.setName("Test Product");
         when(productMapper.toProductsProduct(testProduct)).thenReturn(productsProduct);
+        when(productPriceService.getProductPrices(any())).thenReturn(List.of(testProductPrice));
+        when(productPriceMapper.mapToProductsPriceHistory(testProductPrice)).thenReturn(testProductsPriceHistory);
 
         List<ProductsProduct> result = productService.getAllUserProducts();
 
