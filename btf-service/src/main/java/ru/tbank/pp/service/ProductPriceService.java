@@ -1,5 +1,6 @@
 package ru.tbank.pp.service;
 
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.tbank.dto.NotificationRequestDto;
@@ -29,6 +30,10 @@ public class ProductPriceService {
 
     public BigDecimal getCurrentPrice(Long productId) {
         return productPriceRepository.findByProductIdOrderByIdCheckDateDesc(productId).getFirst().getPrice();
+    }
+
+    public List<ProductPrice> getLatestPricesUpdatedBefore(Instant date) {
+        return productPriceRepository.findLatestPricesBefore(date);
     }
 
     public List<ProductPrice> getProductPrices(Long productId) {

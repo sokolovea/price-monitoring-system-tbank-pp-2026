@@ -11,7 +11,7 @@ import ru.tbank.pp.kafka.producer.ProductRequestProducer;
 @RequiredArgsConstructor
 public class KafkaTestController {
     private final ProductRequestProducer productProducer;
-    @PostMapping
+    @PostMapping(path = "/kafka/test")
     public void test(@RequestBody UpdatePriceRequestList updatePriceRequestList) {
         productProducer.produce(updatePriceRequestList);
     }

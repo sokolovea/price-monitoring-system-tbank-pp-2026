@@ -19,7 +19,7 @@ spring:
     drop-first: false
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -31,13 +31,18 @@ server:
 
 jwt:
   secret: ${JWT_SECRET}
-  expiration-ms: 1800000
+  expiration-ms: 3600000
 
 notification-api:
   base-url: ${NOTIFICATION_API_BASE_URL}
 
 integration-api:
   base-url: ${INTEGRATION_API_BASE_URL}
+
+scheduler:
+  delay: PT12H # ISO-8601 duration of 12 hours
+  initialDelay: PT5S
+  enabled: true
 
 yandex:
   api-url: ${YANDEX_API_URL}

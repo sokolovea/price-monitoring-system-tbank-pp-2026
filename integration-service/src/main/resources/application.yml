@@ -7,11 +7,8 @@ spring:
   config:
     import: optional:file:.env[.properties]
   kafka:
-    bootstrap-servers: broker:9092
-    #bootstrap-servers: localhost:9092
-
-
-
+    #bootstrap-servers: broker:9092
+    bootstrap-servers: localhost:9092
 
 external:
   provider:
