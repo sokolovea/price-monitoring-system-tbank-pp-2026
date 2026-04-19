@@ -1,6 +1,7 @@
 package ru.tbank.pp.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
@@ -19,6 +20,8 @@ import ru.tbank.pp.model.ServiceConnectionConnectRequest;
 import ru.tbank.pp.model.ServiceConnectionStatusCheckRequest;
 import ru.tbank.pp.properties.TgBotProperties;
 
+import java.io.File;
+import java.net.URL;
 import java.util.List;
 
 import static ru.tbank.pp.model.ServiceConnectionService.TELEGRAM;
@@ -105,11 +108,36 @@ public class TgBotService extends TelegramLongPollingBot {
                 .keyboardRow(List.of(button))
                 .build();
 
-        execute(SendPhoto.builder()
-                .chatId(notificationRequestDto.getChatId())
-                .photo(new InputFile(notificationRequestDto.getProductPhotoUrl()))
-                .caption(String.format(PRICE_DROP_CAPTION, notificationRequestDto.getProductName()))
-                .replyMarkup(keyboard).build());
+        File tempFile = null;
+        try {
+            URL url = new URL(notificationRequestDto.getProductPhotoUrl());
+            tempFile = File.createTempFile("product_", ".jpg");
+            FileUtils.copyURLToFile(url, tempFile, 5000, 10000);
+
+            SendPhoto sendPhoto = SendPhoto.builder()
+                    .chatId(notificationRequestDto.getChatId())
+                    .photo(new InputFile(tempFile))
+                    .caption(String.format(PRICE_DROP_CAPTION, notificationRequestDto.getProductName()))
+                    .replyMarkup(keyboard)
+                    .build();
+
+            execute(sendPhoto);
+
+        } catch (Exception e) {
+            log.error("Failed to send photo", e);
+            SendMessage sendMessage = SendMessage.builder()
+                    .chatId(notificationRequestDto.getChatId())
+                    .text(String.format(PRICE_DROP_CAPTION + "\n\n%s",
+                            notificationRequestDto.getProductName(),
+                            notificationRequestDto.getProductUrl()))
+                    .replyMarkup(keyboard)
+                    .build();
+            execute(sendMessage);
+        } finally {
+            if (tempFile != null && tempFile.exists()) {
+                tempFile.delete();
+            }
+        }
     }
 
     @Override
