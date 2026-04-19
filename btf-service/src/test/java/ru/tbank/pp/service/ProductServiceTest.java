@@ -196,7 +196,7 @@ class ProductServiceTest {
     @Test
     void addProduct_Success() {
         when(userService.getUserFromCridentials()).thenReturn(testUser);
-        when(productRepository.findByUrl("https://example.com/product")).thenReturn(Optional.of(testProduct));
+        when(productRepository.findFirstByUrl("https://example.com/product")).thenReturn(Optional.of(testProduct));
 
         ProductsProduct productsProduct = new ProductsProduct();
         productsProduct.setId(1L);
@@ -216,7 +216,7 @@ class ProductServiceTest {
 
     @Test
     void getProductPreview_Success() {
-        when(productRepository.findByUrl("https://example.com/product")).thenReturn(Optional.of(testProduct));
+        when(productRepository.findFirstByUrl("https://example.com/product")).thenReturn(Optional.of(testProduct));
 
         ProductsProductPreview preview = new ProductsProductPreview();
         preview.setTitle("Test Product");
