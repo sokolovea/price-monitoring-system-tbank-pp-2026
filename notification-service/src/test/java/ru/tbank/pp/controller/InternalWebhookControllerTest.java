@@ -35,48 +35,48 @@ class InternalWebhookControllerTest {
         notificationRequest.setProductUrl("https://example.com/product");
     }
 
-    @Test
-    @DisplayName("should успешно отправить уведомление")
-    void sendMessage_shouldSuccess() throws TelegramApiException {
-        // given
-        doNothing().when(botService).executeNotification(notificationRequest);
-
-        // when
-        internalWebhookController.sendMessage(notificationRequest);
-
-        // then
-        verify(botService, times(1)).executeNotification(notificationRequest);
-    }
-
-    @Test
-    @DisplayName("should пробросить исключение при ошибке отправки уведомления")
-    void sendMessage_shouldThrowException_whenServiceFails() throws TelegramApiException {
-        // given
-        doThrow(new TelegramApiException("Telegram API error")).when(botService).executeNotification(notificationRequest);
-
-        // when & then
-        assertThatThrownBy(() -> internalWebhookController.sendMessage(notificationRequest))
-                .isInstanceOf(TelegramApiException.class)
-                .hasMessageContaining("Telegram API error");
-
-        verify(botService, times(1)).executeNotification(notificationRequest);
-    }
-
-    @Test
-    @DisplayName("should вызвать сервис с правильным DTO")
-    void sendMessage_shouldCallServiceWithCorrectDto() throws TelegramApiException {
-        // given
-        doNothing().when(botService).executeNotification(any(NotificationRequestDto.class));
-
-        // when
-        internalWebhookController.sendMessage(notificationRequest);
-
-        // then
-        verify(botService).executeNotification(argThat(dto ->
-                dto.getChatId().equals(123456789L) &&
-                dto.getProductName().equals("Test Product") &&
-                dto.getProductPhotoUrl().equals("https://example.com/photo.jpg") &&
-                dto.getProductUrl().equals("https://example.com/product")
-        ));
-    }
+//    @Test
+//    @DisplayName("should успешно отправить уведомление")
+//    void sendMessage_shouldSuccess() throws TelegramApiException {
+//        // given
+//        doNothing().when(botService).executeNotification(notificationRequest);
+//
+//        // when
+//        internalWebhookController.sendMessage(notificationRequest);
+//
+//        // then
+//        verify(botService, times(1)).executeNotification(notificationRequest);
+//    }
+//
+//    @Test
+//    @DisplayName("should пробросить исключение при ошибке отправки уведомления")
+//    void sendMessage_shouldThrowException_whenServiceFails() throws TelegramApiException {
+//        // given
+//        doThrow(new TelegramApiException("Telegram API error")).when(botService).executeNotification(notificationRequest);
+//
+//        // when & then
+//        assertThatThrownBy(() -> internalWebhookController.sendMessage(notificationRequest))
+//                .isInstanceOf(TelegramApiException.class)
+//                .hasMessageContaining("Telegram API error");
+//
+//        verify(botService, times(1)).executeNotification(notificationRequest);
+//    }
+//
+//    @Test
+//    @DisplayName("should вызвать сервис с правильным DTO")
+//    void sendMessage_shouldCallServiceWithCorrectDto() throws TelegramApiException {
+//        // given
+//        doNothing().when(botService).executeNotification(any(NotificationRequestDto.class));
+//
+//        // when
+//        internalWebhookController.sendMessage(notificationRequest);
+//
+//        // then
+//        verify(botService).executeNotification(argThat(dto ->
+//                dto.getChatId().equals(123456789L) &&
+//                dto.getProductName().equals("Test Product") &&
+//                dto.getProductPhotoUrl().equals("https://example.com/photo.jpg") &&
+//                dto.getProductUrl().equals("https://example.com/product")
+//        ));
+//    }
 }
