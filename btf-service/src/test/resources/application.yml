@@ -20,6 +20,9 @@ spring:
   liquibase:
     enabled: false
 
+scheduler:
+  enabled: false
+
 jwt:
   secret: dGVzdC1zZWNyZXQta2V5LXRoYXQtaXMtYXQtbGVhc3QtMjU2LWJpdHMtbG9uZy1mb3ItaG1hYy1zaGEh
   expiration-ms: 3600000

@@ -39,6 +39,11 @@ notification-api:
 integration-api:
   base-url: ${INTEGRATION_API_BASE_URL}
 
+scheduler:
+  delay: PT12H # ISO-8601 duration of 12 hours
+  initialDelay: PT5S
+  enabled: true
+
 yandex:
   api-url: ${YANDEX_API_URL}
   api-key: ${YANDEX_API_KEY}

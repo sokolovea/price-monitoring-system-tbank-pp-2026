@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.tbank.dto.ProductInfo;
 import ru.tbank.dto.ProductReference;
+import ru.tbank.dto.UpdatePriceRequest;
 import ru.tbank.pp.entity.Product;
 import ru.tbank.pp.model.*;
 import ru.tbank.pp.service.ProductPriceService;
@@ -91,5 +92,14 @@ public class ProductMapper {
         productReference.setSku(product.getArticle());
         productReference.setOptionId(product.getOptionId());
         return productReference;
+    }
+
+    public UpdatePriceRequest toUpdatePriceRequest(Product product) {
+        var updatePriceRequest = new UpdatePriceRequest();
+        updatePriceRequest.setId(product.getId());
+        updatePriceRequest.setOptionId(product.getOptionId());
+        updatePriceRequest.setSku(product.getArticle());
+        updatePriceRequest.setMarketplace(product.getMarketplace());
+        return updatePriceRequest;
     }
 }
