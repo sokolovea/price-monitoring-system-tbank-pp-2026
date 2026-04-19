@@ -17,7 +17,6 @@ class UrlParserTest {
     @BeforeEach
     void setUp() {
         urlParser = new UrlParser();
-        urlParser.init();
     }
 
     @Test
