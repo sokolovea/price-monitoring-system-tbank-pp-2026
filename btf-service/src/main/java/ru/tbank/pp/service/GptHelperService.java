@@ -10,8 +10,8 @@ import ru.tbank.pp.dto.yandex.Message;
 import ru.tbank.pp.dto.yandex.request.CompletionOptions;
 import ru.tbank.pp.dto.yandex.request.YandexGptRequest;
 import ru.tbank.pp.exception.YandexGptResponseNotFoundException;
-import ru.tbank.pp.model.GptGptResponse;
-import ru.tbank.pp.model.GptIdList;
+import ru.tbank.pp.model.ProductsGptResponse;
+import ru.tbank.pp.model.ProductsIdList;
 import ru.tbank.pp.properties.YandexGptProperties;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class GptHelperService {
     private static final String YANDEX_USER_ROLE = "user";
     private static final String YANDEX_SYSTEM_ROLE = "system";
 
-    public GptGptResponse getGptResponse(GptIdList idList) {
+    public ProductsGptResponse getGptResponse(ProductsIdList idList) {
         var products = productService.getProductDetailList(idList.getIds());
 
         var objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
@@ -56,7 +56,7 @@ public class GptHelperService {
         if (gptResponse == null) {
             throw new YandexGptResponseNotFoundException("Произошла ошибка при получении ответа от YandexGpt");
         }
-        var response = new GptGptResponse();
+        var response = new ProductsGptResponse();
         response.setGptOpinion(gptResponse.getResult()
                 .getAlternatives()
                 .getFirst()

@@ -75,7 +75,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/service/**",
-                                "/gpt"
+                                "/products/compare/recommendation"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -90,7 +90,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "http://localhost:8082"
+                "http://localhost:8082",
+                "https://price-hunter-client.vercel.app"
                 ));
         configuration.setAllowedMethods(List.of("GET", "POST","PATCH", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

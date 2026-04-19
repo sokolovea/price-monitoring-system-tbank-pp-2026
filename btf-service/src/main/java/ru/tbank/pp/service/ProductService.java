@@ -2,13 +2,16 @@ package ru.tbank.pp.service;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.tbank.dto.ProductInfo;
 import ru.tbank.dto.ProductReference;
+import ru.tbank.dto.SearchQuery;
 import ru.tbank.dto.UpdatePriceResponse;
 import ru.tbank.pp.client.IntegrationClient;
 import ru.tbank.pp.entity.Product;
@@ -50,6 +53,7 @@ public class ProductService {
 
         return userProducts.stream()
                 .map(up -> productMapper.toProductsProduct(up.getProduct()))
+                .map(this::setProductParameters)
                 .toList();
     }
 
@@ -62,20 +66,56 @@ public class ProductService {
         }
 
         var product = productOptional.get();
+        var productDetail = productMapper.toProductsProductDetail(product);
+
+        return setDetailParameters(productDetail, user.getId());
+    }
+
+    private ProductsProduct setProductParameters(ProductsProduct productsProduct) {
+        var productId = productsProduct.getId();
         var productPrices = productPriceService.getProductPrices(productId);
         var priceHistory = productPrices.stream()
                 .map(productPriceMapper::mapToProductsPriceHistory)
+                .sorted(Comparator.comparing(ProductsPriceHistory::getDate).reversed())
+                .toList();
+        if (priceHistory.size() >= 2) {
+            var lastPrice = priceHistory.getLast().getPrice();
+            var previousPrice = priceHistory.get(priceHistory.size() - 2).getPrice();
+            var priceChange = lastPrice.subtract(previousPrice);
+            productsProduct.setPriceChange(priceChange);
+        }
+        productsProduct.setLastChecked(priceHistory.getLast().getDate());
+        return productsProduct;
+    }
+
+    private ProductsProductDetail setDetailParameters(ProductsProductDetail productsProductDetail, Long userId) {
+        var productId = productsProductDetail.getId();
+        var productPrices = productPriceService.getProductPrices(productId);
+        var priceHistory = productPrices.stream()
+                .map(productPriceMapper::mapToProductsPriceHistory)
+                .sorted(Comparator.comparing(ProductsPriceHistory::getDate).reversed())
                 .toList();
 
-        var userProduct = getUserProduct(productId, user.getId());
+        var userProduct = getUserProduct(productId, userId);
 
         var productsNotification = userProductMapper.toProductsNotification(userProduct);
 
-        var productDetail = productMapper.toProductsProductDetail(product);
-        productDetail.setPriceHistory(priceHistory);
-        productDetail.setNotification(productsNotification);
+        if (priceHistory.size() >= 2) {
+            var lastPrice = priceHistory.getLast().getPrice();
+            var previousPrice = priceHistory.get(priceHistory.size() - 2).getPrice();
+            var priceChange = lastPrice.subtract(previousPrice);
+            var priceChangePercent = priceChange
+                    .divide(lastPrice, 4, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"))
+                    .setScale(2, RoundingMode.HALF_UP);
 
-        return productDetail;
+            productsProductDetail.setPriceChange(priceChange);
+            productsProductDetail.setPriceChangePercent(priceChangePercent.floatValue());
+        }
+        productsProductDetail.lastChecked(priceHistory.getLast().getDate());
+        productsProductDetail.setPriceHistory(priceHistory);
+        productsProductDetail.setNotification(productsNotification);
+        return productsProductDetail;
     }
 
     @Transactional
@@ -167,11 +207,17 @@ public class ProductService {
     }
 
     public List<ProductsProductDetail> getProductDetailList(List<Long> ids) {
+        var user = userService.getUserFromCridentials();
+
         var productsOptional = productRepository.findAllById(ids);
         if (productsOptional.isEmpty()) {
             throw new ProductNotFoundException("Products not found");
         }
-        return productsOptional.stream().map(productMapper::toProductsProductDetail).toList();
+
+        return productsOptional.stream()
+                .map(productMapper::toProductsProductDetail)
+                .map(pd ->setDetailParameters(pd, user.getId()))
+                .toList();
     }
 
     private UserProduct getUserProduct(Long productId, Long userId) {
@@ -188,7 +234,7 @@ public class ProductService {
         return userProductOptional.get();
     }
 
-    private Product getProductByUrl(String url) { //todo обернуть в обьект
+    private Product getProductByUrl(String url) {
         var productOptional = productRepository.findByUrl(url);
 
         Product result;
@@ -219,6 +265,31 @@ public class ProductService {
         return result;
     }
 
+    public ProductsProductRecommendations getProductRecommendations(Long productId, Integer limit, Integer offset) {
+        var product = getProduct(productId);
+        var searchQuery = new SearchQuery(
+                product.getName(),
+                product.getMarketplace(),
+                limit.longValue(),
+                1 + offset.longValue()
+        );
 
+        var recommendationsOptional = integrationClient.sendSearchRequest(searchQuery);
+
+        if (recommendationsOptional.isEmpty()) {
+            throw new ProductNotFoundException("Product Recommendations not found");
+        }
+        var recommendations = recommendationsOptional.get();
+
+        var products = recommendations.getProducts().stream().map(productMapper::toProductsProduct).toList();
+
+        var recommendationsRecommendations = new ProductsProductRecommendations();
+        recommendationsRecommendations.setTotal(products.size());
+        recommendationsRecommendations.setLimit(limit);
+        recommendationsRecommendations.setOffset(offset);
+        recommendationsRecommendations.setItems(products);
+        return recommendationsRecommendations;
+
+    }
 
 }
