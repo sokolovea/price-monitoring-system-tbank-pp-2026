@@ -11,6 +11,7 @@ import ru.tbank.dto.ProductInfo;
 import ru.tbank.dto.ProductReference;
 import ru.tbank.dto.SearchQuery;
 import ru.tbank.dto.SimilarProducts;
+import ru.tbank.pp.model.ProductsUrl;
 
 @Slf4j
 @Component
@@ -71,6 +72,24 @@ public class IntegrationClient {
         } else {
             result = Optional.empty();
             log.debug("search request failed! Response: {}", response.getBody());
+        }
+        return result;
+    }
+
+    public Optional<ProductReference> sendParseRequest(ProductsUrl url) {
+        ResponseEntity<ProductReference> response = restClient.post()
+                .uri("/parse")
+                .accept(MediaType.APPLICATION_JSON)
+                .body(url)
+                .retrieve()
+                .toEntity(ProductReference.class);
+
+        Optional<ProductReference> result;
+        if (response.getStatusCode().is2xxSuccessful()) {
+            result = Optional.ofNullable(response.getBody());
+        } else {
+            result = Optional.empty();
+            log.debug("Parse request failed! Response: {}", response.getBody());
         }
         return result;
     }
