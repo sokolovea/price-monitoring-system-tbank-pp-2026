@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tbank.dto.UpdatePriceRequestList;
@@ -18,12 +19,17 @@ import ru.tbank.pp.service.ProductPriceService;
 
 @Service
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        value = "scheduler.enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class PriceUpdater {
     private final ProductPriceService productPriceService;
     private final ProductRequestProducer productRequestProducer;
     private final ProductMapper productMapper;
 
-    @Value("${scheduler.delay}")
+    @Value("${scheduler.delay:PT5M}")
     private String delayString;
 
     private static final int messageLength = 99;
@@ -36,8 +42,8 @@ public class PriceUpdater {
     }
 
     @Scheduled(
-            fixedDelayString = "${scheduler.delay}",
-            initialDelayString = "${scheduler.initialDelay}"
+            fixedDelayString = "${scheduler.delay:PT12H}",
+            initialDelayString = "${scheduler.initialDelay:PT5M}"
     )
     public void updatePrice() {
         List<ProductPrice> prices = productPriceService.getLatestPricesUpdatedBefore(

@@ -13,7 +13,6 @@ import ru.tbank.config.KafkaConfig;
 @SpringBootApplication
 @Import(KafkaConfig.class)
 @ConfigurationPropertiesScan
-@EnableScheduling
 public class BackToFrontApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BackToFrontApplication.class, args);
