@@ -65,5 +65,6 @@ public class PriceUpdater {
                             .collect(Collectors.toList())
             );
             productRequestProducer.produce(request);
-        } }
+        }
+    }
 }

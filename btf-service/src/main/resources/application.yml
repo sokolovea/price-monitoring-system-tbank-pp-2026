@@ -2,13 +2,13 @@ spring:
   application:
     name: btf-service
   kafka:
-    bootstrap-servers: broker:9092
-    #bootstrap-servers: localhost:9092
+    #bootstrap-servers: broker:9092
+    bootstrap-servers: localhost:9092
   config:
     import: optional:file:.env[.properties]
   datasource:
-    url: jdbc:postgresql://pricehunter-db:5432/${POSTGRES_DB}
-    #url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
+    #url: jdbc:postgresql://pricehunter-db:5432/${POSTGRES_DB}
+    url: jdbc:postgresql://localhost:5431/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -40,8 +40,8 @@ integration-api:
   base-url: ${INTEGRATION_API_BASE_URL}
 
 scheduler:
-  delay: PTH12 # ISO-8601 duration of 12 hours
-  initialDelay: PTS5
+  delay: PT12H # ISO-8601 duration of 12 hours
+  initialDelay: PT5S
 
 yandex:
   api-url: ${YANDEX_API_URL}
