@@ -30,9 +30,9 @@ public class ProductRequestConsumer {
                 updatePriceRequestList.getItems().getLast().getId()
         );
 
-        UpdatePriceResponseList result = new UpdatePriceResponseList(
+        responseProducer.produce(new UpdatePriceResponseList(
                 productHandler.getPrices(updatePriceRequestList.getItems())
+                )
         );
-        responseProducer.produce(result);
     }
 }

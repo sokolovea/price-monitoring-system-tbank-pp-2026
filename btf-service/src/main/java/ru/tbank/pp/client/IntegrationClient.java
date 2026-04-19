@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import ru.tbank.dto.ProductInfo;
 import ru.tbank.dto.ProductReference;
+import ru.tbank.dto.SearchQuery;
 import ru.tbank.dto.SimilarProducts;
 
 @Slf4j
@@ -51,7 +52,25 @@ public class IntegrationClient {
             result = Optional.ofNullable(response.getBody());
         } else {
             result = Optional.empty();
-            log.debug("/similar request failed! Response: {}", response.getBody());
+            log.debug("similar request failed! Response: {}", response.getBody());
+        }
+        return result;
+    }
+
+    public Optional<SimilarProducts> sendSearchRequest(SearchQuery searchQuery) {
+        ResponseEntity<SimilarProducts> response = restClient.post()
+                .uri("/search")
+                .accept(MediaType.APPLICATION_JSON)
+                .body(searchQuery)
+                .retrieve()
+                .toEntity(SimilarProducts.class);
+
+        Optional<SimilarProducts> result;
+        if (response.getStatusCode().is2xxSuccessful()) {
+            result = Optional.ofNullable(response.getBody());
+        } else {
+            result = Optional.empty();
+            log.debug("search request failed! Response: {}", response.getBody());
         }
         return result;
     }

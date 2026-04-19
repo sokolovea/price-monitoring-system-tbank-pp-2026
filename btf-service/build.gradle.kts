@@ -1,5 +1,6 @@
 plugins {
     java
+    id("jacoco")
     id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -13,6 +14,8 @@ java {
         languageVersion = JavaLanguageVersion.of(25)
     }
 }
+
+
 
 configurations {
     compileOnly {
@@ -42,6 +45,17 @@ dependencies {
     testImplementation("org.springframework.kafka:spring-kafka-test")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }
 
 tasks.test {

@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.tbank.pp.model.*;
+import ru.tbank.pp.service.GptHelperService;
 import ru.tbank.pp.service.ProductService;
 
 import java.math.BigDecimal;
@@ -25,14 +26,16 @@ class ProductApiControllerTest {
     private MockMvc mockMvc;
     private ProductService productService;
     private ObjectMapper objectMapper;
+    private GptHelperService gptHelperService;
 
     @BeforeEach
     void setUp() {
         productService = mock(ProductService.class);
+        gptHelperService = mock(GptHelperService.class);
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
-        ProductApiController controller = new ProductApiController(productService);
+        ProductApiController controller = new ProductApiController(productService, gptHelperService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -165,5 +168,22 @@ class ProductApiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Test Product"));
+    }
+
+    @Test
+    void gptGetGptHelp_Success() throws Exception {
+        ProductsIdList idList = new ProductsIdList();
+        idList.setIds(List.of(1L, 2L));
+
+        ProductsGptResponse response = new ProductsGptResponse();
+        response.setGptOpinion("Это хороший товар!");
+
+        when(gptHelperService.getGptResponse(any(ProductsIdList.class))).thenReturn(response);
+
+        mockMvc.perform(post("/products/compare/recommendation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(idList)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.gptOpinion").value("Это хороший товар!"));
     }
 }

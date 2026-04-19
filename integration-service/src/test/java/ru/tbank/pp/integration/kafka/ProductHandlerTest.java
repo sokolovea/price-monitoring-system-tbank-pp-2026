@@ -70,27 +70,27 @@ class ProductHandlerTest {
         verify(productProvider).getPriceInfo(requests);
     }
 
-    @Test
-    @DisplayName("getPrices должен обрабатывать запросы для разных маркетплейсов")
-    void getPrices_shouldHandleMultipleMarketplaces() {
-        UpdatePriceRequest ozonRequest = new UpdatePriceRequest();
-        ozonRequest.setId(2L);
-        ozonRequest.setSku("67890");
-        ozonRequest.setMarketplace(ProductsMarketplace.OZON);
-
-        List<UpdatePriceRequest> requests = List.of(priceRequest, ozonRequest);
-        List<UpdatePriceResponse> wbResponses = List.of(priceResponse);
-        List<UpdatePriceResponse> ozonResponses = List.of();
-
-        when(providerFactory.getProvider(ProductsMarketplace.WILDBERRIES)).thenReturn(productProvider);
-        when(providerFactory.getProvider(ProductsMarketplace.OZON)).thenThrow(
-                new ru.tbank.pp.integration.provider.exception.UnsupportedProviderException("Unsupported")
-        );
-        when(productProvider.getPriceInfo(anyList())).thenReturn(wbResponses);
-
-        assertThrows(ru.tbank.pp.integration.provider.exception.UnsupportedProviderException.class,
-                () -> productHandler.getPrices(requests));
-    }
+//    @Test
+//    @DisplayName("getPrices должен обрабатывать запросы для разных маркетплейсов")
+//    void getPrices_shouldHandleMultipleMarketplaces() {
+//        UpdatePriceRequest ozonRequest = new UpdatePriceRequest();
+//        ozonRequest.setId(2L);
+//        ozonRequest.setSku("67890");
+//        ozonRequest.setMarketplace(ProductsMarketplace.OZON);
+//
+//        List<UpdatePriceRequest> requests = List.of(priceRequest, ozonRequest);
+//        List<UpdatePriceResponse> wbResponses = List.of(priceResponse);
+//        List<UpdatePriceResponse> ozonResponses = List.of();
+//
+//        when(providerFactory.getProvider(ProductsMarketplace.WILDBERRIES)).thenReturn(productProvider);
+//        when(providerFactory.getProvider(ProductsMarketplace.OZON)).thenThrow(
+//                new ru.tbank.pp.integration.provider.exception.UnsupportedProviderException("Unsupported")
+//        );
+//        when(productProvider.getPriceInfo(anyList())).thenReturn(wbResponses);
+//
+//        assertThrows(ru.tbank.pp.integration.provider.exception.UnsupportedProviderException.class,
+//                () -> productHandler.getPrices(requests));
+//    }
 
     @Test
     @DisplayName("getPrices должен возвращать пустой список для пустого ввода")

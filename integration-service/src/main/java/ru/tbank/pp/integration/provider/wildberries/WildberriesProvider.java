@@ -1,6 +1,9 @@
 package ru.tbank.pp.integration.provider.wildberries;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +18,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.tbank.dto.HasSku;
+import ru.tbank.dto.SearchQuery;
 import ru.tbank.dto.SimilarProducts;
 import ru.tbank.dto.UpdatePriceRequest;
 import ru.tbank.dto.UpdatePriceResponse;
@@ -81,7 +85,8 @@ public class WildberriesProvider implements ProductProvider {
         productReference.setOptionId(uri.getQueryParams().getFirst("size"));
     }
 
-    private Response sendProductRequest(String nm) { return restClient.get()
+    private Response sendProductRequest(String nm) {
+        return restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
                         .host("api-android.wildberries.ru")
@@ -117,6 +122,42 @@ public class WildberriesProvider implements ProductProvider {
             throw new ProviderCommunicationException("Got no response (wtf)");
         }
         return Arrays.asList(result);
+    }
+
+    private Response sendSearchRequest(SearchQuery query) {
+        URI uri = UriComponentsBuilder.newInstance()
+                .scheme("https")
+                .host("api-android.wildberries.ru")
+                .path("/__internal/search/exactmatch/ru/common/v14/search")
+                .queryParam("curr", "rub")
+                .queryParam("dest", config.getDest())
+                .queryParam("lang", "ru")
+                .queryParam("locale", "ru")
+                .queryParam("page", query.getOffset())
+                .queryParam("query", query.getQuery())
+                .queryParam("resultset", "catalog")
+                .queryParam("appType", 32)
+                .queryParam("sort", "popular")
+                .queryParam("suppressSpellcheck", "false")
+                .queryParam("limit", query.getLimit())
+                .build()
+                .encode()
+                .toUri();
+
+
+        String rawResponse = restClient.get()
+                .uri(uri)
+                .header("User-Agent", config.getUserAgent())
+                .cookie("x_wbaas_token", config.getToken())
+                .retrieve()
+                .body(String.class);
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(rawResponse, Response.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private SizeSchema findOption(ProductSchema schema, String optionId) {
@@ -267,6 +308,10 @@ public class WildberriesProvider implements ProductProvider {
     @Override
     public SimilarProducts getSimilarProducts(NormalizedReference productReference) {
         List<Long> ids = sendIdenticalProductRequest(Long.parseLong(productReference.getSku()));
+        if (ids.isEmpty()) {
+            log.debug("No products found for sku: {}", productReference.getSku());
+            return new SimilarProducts(List.of());
+        }
         Response wbResponse = sendProductRequest(buildNmStringFromIds(ids));
         if (wbResponse.getProducts().isEmpty()) {
             log.debug("No similar products found for sku: {}", productReference.getSku());
@@ -277,6 +322,21 @@ public class WildberriesProvider implements ProductProvider {
                 wbResponse.getProducts().stream()
                 .map(product -> parseInfo(product, null))
                 .collect(Collectors.toCollection(ArrayList::new))
+        );
+    }
+
+    @Override
+    public SimilarProducts search(SearchQuery query) {
+        Response wbResponse = sendSearchRequest(query);
+        if (wbResponse == null || wbResponse.getProducts() == null || wbResponse.getProducts().isEmpty()) {
+            log.debug("No similar products found for query: {}", query);
+            throw new ProductNotFoundException("Similar products not found for query: " + query);
+        }
+
+        return new SimilarProducts(
+                wbResponse.getProducts().stream()
+                        .map(product -> parseInfo(product, null))
+                        .collect(Collectors.toCollection(ArrayList::new))
         );
     }
 }
