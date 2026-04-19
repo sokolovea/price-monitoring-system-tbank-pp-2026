@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-url-index-1
+      author: Igor
+      changes:
+        - createIndex:
+            indexName: idx_full_url
+            tableName: product
+            columns:
+              - column:
+                  name: url
+              - column:
+                  name: option_name

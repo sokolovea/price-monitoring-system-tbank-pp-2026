@@ -9,6 +9,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.tbank.dto.NormalizedReference;
 import ru.tbank.dto.ProductInfo;
 import ru.tbank.dto.ProductReference;
 import ru.tbank.dto.SearchQuery;
@@ -235,13 +236,22 @@ public class ProductService {
     }
 
     private Product getProductByUrl(String url) {
-        var productOptional = productRepository.findByUrl(url);
+        Optional<ProductReference> productResponse = integrationClient.sendParseRequest(new ProductsUrl(url));
+        if (productResponse.isEmpty()) {
+            log.debug("Product with url '{}' not found", url);
+            throw new ProductNotFoundException("Invalid url");
+        }
+
+        ProductReference productReference = productResponse.get();
+        Optional<Product> productOptional;
+        if (productReference.getOptionId() == null) {
+            productOptional = productRepository.findFirstByUrl(productReference.getUrl());
+        } else {
+            productOptional = productRepository.findByUrlAndOptionId(productReference.getUrl(), productReference.getOptionId());
+        }
 
         Product result;
         if (productOptional.isEmpty()) {
-            ProductReference productReference = new ProductReference();
-            productReference.setUrl(url);
-
             Optional<ProductInfo> requestResult = integrationClient.sendProductRequest(productReference);
             Instant responseTimestamp = Instant.now();
             if (requestResult.isEmpty()) {
