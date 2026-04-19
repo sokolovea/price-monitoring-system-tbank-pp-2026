@@ -43,6 +43,5 @@ yandex:
   api-url: ${YANDEX_API_URL}
   api-key: ${YANDEX_API_KEY}
   folder-id: ${YANDEX_FOLDER_ID}
-  command-path-for-docker: ${YANDEX_COMMAND_PATH_FOR_DOCKER}
-  command-path-for-ide: ${YANDEX_COMMAND_PATH_FOR_IDE}
+  command-path: ${YANDEX_COMMAND_PATH}
   model: ${YANDEX_MODEL}
