@@ -57,7 +57,7 @@ public class ProductMapper {
         productsProductDetail.setCurrentPrice(productPriceService.getCurrentPrice(product.getId()));
         productsProductDetail.setImage(product.getImage());
         productsProductDetail.setMarketplace(product.getMarketplace());
-        productsProductDetail.setNmId(product.getId());
+        productsProductDetail.setNmId(Long.valueOf(product.getArticle()));
         productsProductDetail.setUrl(product.getUrl());
         return productsProductDetail;
     }
