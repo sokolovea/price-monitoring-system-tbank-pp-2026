@@ -1,6 +1,7 @@
 package ru.tbank.pp.kafka.cron;
 
 import jakarta.annotation.PostConstruct;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -25,14 +26,13 @@ public class PriceUpdater {
     @Value("${scheduler.delay}")
     private String delayString;
 
-    @Value("{$}")
-    private int messageLength;
+    private static final int messageLength = 99;
 
     private long delay;
 
     @PostConstruct
     private void init() {
-        delay = Instant.parse(delayString).toEpochMilli();
+        delay = Duration.parse(delayString).toMillis();
     }
 
     @Scheduled(
@@ -57,7 +57,7 @@ public class PriceUpdater {
         }
 
         if (startIdx < prices.size()) {
-            var subList = prices.subList(startIdx, startIdx + messageLength);
+            var subList = prices.subList(startIdx, prices.size());
             var request = new UpdatePriceRequestList(
                     subList.stream()
                             .map(ProductPrice::getProduct)
@@ -65,6 +65,5 @@ public class PriceUpdater {
                             .collect(Collectors.toList())
             );
             productRequestProducer.produce(request);
-        }
-    }
+        } }
 }
