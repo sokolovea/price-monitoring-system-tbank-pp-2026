@@ -44,7 +44,7 @@ public class ProductMapper {
         productsProduct.setCurrentPrice(productPriceService.getCurrentPrice(product.getId()));
         productsProduct.setImage(product.getImage());
         productsProduct.setMarketplace(product.getMarketplace());
-        productsProduct.setNmId(product.getId());
+        productsProduct.setNmId(Long.valueOf(product.getArticle()));
         productsProduct.setUrl(product.getUrl());
         return productsProduct;
     }
@@ -80,6 +80,7 @@ public class ProductMapper {
         product.setOptionId(createProductDto.getOptionId());
         product.setOptionName(createProductDto.getOptionName());
         product.setImage(createProductDto.getImageUrl());
+        product.setArticle(createProductDto.getSku());
         product.setIsTracked(false);
 
         return product;
