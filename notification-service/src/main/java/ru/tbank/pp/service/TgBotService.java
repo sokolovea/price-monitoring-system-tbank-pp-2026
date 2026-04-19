@@ -32,7 +32,7 @@ public class TgBotService extends TelegramLongPollingBot {
     private final TgBotProperties tgBotProperties;
     private final BackendClient backendClient;
 
-    private static final String PRICE_DROP_CAPTION = "💰 Цена на товар '%s' упала! ||$s||";
+    private static final String PRICE_DROP_CAPTION = "💰 Цена на товар '%s' упала! ||%s||";
     private static final String USER_LINK = "Привязка к пользователю %d прошла успешно!";
     private static final String USER_LINK_ERROR = "Ошибка привязки к пользователю! Такой ID уже зарегистрирован!";
     private static final String VIEW_PRODUCT_BUTTON_TEXT = "Посмотреть товар";
@@ -110,7 +110,7 @@ public class TgBotService extends TelegramLongPollingBot {
 
         var sendMessage = new SendMessage(
                 notificationRequestDto.getChatId().toString(),
-                String.format(PRICE_DROP_CAPTION, notificationRequestDto.getProductName())
+                String.format(PRICE_DROP_CAPTION, notificationRequestDto.getProductName(), notificationRequestDto.getProductPhotoUrl())
         );
         sendMessage.setReplyMarkup(keyboard);
         execute(sendMessage);
@@ -135,7 +135,7 @@ public class TgBotService extends TelegramLongPollingBot {
             SendPhoto sendPhoto = SendPhoto.builder()
                     .chatId(notificationRequestDto.getChatId())
                     .photo(new InputFile(tempFile))
-                    .caption(String.format(PRICE_DROP_CAPTION, notificationRequestDto.getProductName(), notificationRequestDto.getProductPhotoUrl()))
+                    .caption(String.format(PRICE_DROP_CAPTION, notificationRequestDto.getProductName()))
                     .replyMarkup(keyboard)
                     .build();
 
