@@ -63,6 +63,7 @@ public class ProductPriceService {
 
             var internalId = userNotificationRepository.findById(userNotificationId).get().getInternalId();
             notificationRequestDto.setChatId(internalId);
+            System.out.println("отправка уведомления " + internalId);
             notificationClient.sendNotification(notificationRequestDto);
         }
     }
