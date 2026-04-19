@@ -32,7 +32,7 @@ public class TgBotService extends TelegramLongPollingBot {
     private final TgBotProperties tgBotProperties;
     private final BackendClient backendClient;
 
-    private static final String PRICE_DROP_CAPTION = "💰 Цена на товар '%s' упала!";
+    private static final String PRICE_DROP_CAPTION = "💰 Цена на товар '%s' упала! ||%s||";
     private static final String USER_LINK = "Привязка к пользователю %d прошла успешно!";
     private static final String USER_LINK_ERROR = "Ошибка привязки к пользователю! Такой ID уже зарегистрирован!";
     private static final String VIEW_PRODUCT_BUTTON_TEXT = "Посмотреть товар";
@@ -96,6 +96,24 @@ public class TgBotService extends TelegramLongPollingBot {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public void executeNotificationMessage(NotificationRequestDto notificationRequestDto) throws TelegramApiException {
+        var button = InlineKeyboardButton.builder()
+                .text(VIEW_PRODUCT_BUTTON_TEXT)
+                .url(notificationRequestDto.getProductUrl())
+                .build();
+
+        var keyboard = InlineKeyboardMarkup.builder()
+                .keyboardRow(List.of(button))
+                .build();
+
+        var sendMessage = new SendMessage(
+                notificationRequestDto.getChatId().toString(),
+                String.format(PRICE_DROP_CAPTION, notificationRequestDto.getProductName(), notificationRequestDto.getProductPhotoUrl())
+        );
+        sendMessage.setReplyMarkup(keyboard);
+        execute(sendMessage);
     }
 
     public void executeNotification(NotificationRequestDto notificationRequestDto) throws TelegramApiException {

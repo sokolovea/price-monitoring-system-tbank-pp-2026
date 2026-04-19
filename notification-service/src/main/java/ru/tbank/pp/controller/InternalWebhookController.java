@@ -18,6 +18,7 @@ public class InternalWebhookController {
      */
     @PostMapping("/webhook/send")
     public void sendMessage(@RequestBody NotificationRequestDto request) throws TelegramApiException {
-        botService.executeNotification(request);
+        System.out.println(request.getProductPhotoUrl());
+        botService.executeNotificationMessage(request);
     }
 }
