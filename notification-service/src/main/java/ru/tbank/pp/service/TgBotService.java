@@ -62,7 +62,7 @@ public class TgBotService extends TelegramLongPollingBot {
                         var serviceConnectionStatusCheckRequest = new ServiceConnectionStatusCheckRequest();
                         serviceConnectionStatusCheckRequest.setService(TELEGRAM);
                         serviceConnectionStatusCheckRequest.setId(userId);
-                        if (!backendClient.checkIfUserExists(serviceConnectionStatusCheckRequest)) {
+                        if (backendClient.checkIfUserExists(serviceConnectionStatusCheckRequest)) {
                             var serviceConnectionConnectRequest = new ServiceConnectionConnectRequest();
                             serviceConnectionConnectRequest.setService(TELEGRAM);
                             serviceConnectionConnectRequest.setId(userId);
