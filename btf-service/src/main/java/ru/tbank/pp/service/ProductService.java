@@ -137,7 +137,7 @@ public class ProductService {
 
         userProductRepository.save(userProduct);
 
-        return productMapper.toProductsProduct(product);
+        return setProductParameters(productMapper.toProductsProduct(product));
     }
 
     public ProductsProductPreview getProductPreview(ProductsUrl productUrl) {
@@ -181,6 +181,7 @@ public class ProductService {
         var userProduct = getUserProduct(productId, user.getId());
 
         userProduct.setNotify(Boolean.FALSE);
+        userProduct.setThresholdPrice(null);
 
         return userProductRepository.save(userProduct).getNotify();
     }
