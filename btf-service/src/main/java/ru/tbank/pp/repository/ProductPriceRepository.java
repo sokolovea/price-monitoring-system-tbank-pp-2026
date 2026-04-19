@@ -16,11 +16,13 @@ public interface ProductPriceRepository extends JpaRepository<ProductPrice, Prod
     List<ProductPrice> findByProductIdOrderByIdCheckDateDesc(Long productId);
 
     @Query(value = """
-        SELECT * FROM (
-        SELECT *, ROW_NUMBER() OVER (PARTITION BY product_id ORDER BY check_date DESC) as rownum
+    SELECT * FROM (
+        SELECT *, 
+               ROW_NUMBER() OVER (PARTITION BY product_id ORDER BY check_date DESC) as rownum
         FROM product_price
-        WHERE check_date < :timestamp
-        ) t WHERE t.rownum = 1
+    ) t 
+    WHERE t.rownum = 1 
+      AND t.check_date < :timestamp
     """, nativeQuery = true)
     List<ProductPrice> findLatestPricesBefore(@Param("timestamp") Instant timestamp);
 }

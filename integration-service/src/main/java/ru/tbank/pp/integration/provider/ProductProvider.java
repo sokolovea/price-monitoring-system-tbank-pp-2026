@@ -8,6 +8,7 @@ import ru.tbank.dto.SearchQuery;
 import ru.tbank.dto.SimilarProducts;
 import ru.tbank.dto.UpdatePriceRequest;
 import ru.tbank.dto.UpdatePriceResponse;
+import ru.tbank.pp.model.ProductsUrl;
 
 public interface ProductProvider {
     ProductInfo getProductInfo(ProductReference productReference);
@@ -16,4 +17,5 @@ public interface ProductProvider {
     SimilarProducts getSimilarProducts(NormalizedReference productReference);
     SimilarProducts search(SearchQuery query);
     NormalizedReference normalize(ProductReference productReference);
+    ProductReference parseUrl(ProductReference url);
 }

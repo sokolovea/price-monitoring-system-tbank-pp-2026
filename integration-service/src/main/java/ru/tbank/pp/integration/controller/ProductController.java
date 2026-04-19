@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import ru.tbank.dto.NormalizedReference;
 import ru.tbank.dto.ProductInfo;
 import ru.tbank.dto.ProductReference;
 import ru.tbank.dto.SearchQuery;
@@ -15,6 +16,7 @@ import ru.tbank.dto.SimilarProducts;
 import ru.tbank.pp.integration.provider.ProductProvider;
 import ru.tbank.pp.integration.provider.ProviderFactory;
 import ru.tbank.pp.integration.provider.UrlParser;
+import ru.tbank.pp.model.ProductsUrl;
 
 @Slf4j
 @RestController
@@ -22,6 +24,18 @@ import ru.tbank.pp.integration.provider.UrlParser;
 public class ProductController {
     private final ProviderFactory providerFactory;
     private final UrlParser urlParser;
+
+    @PostMapping("/parse")
+    public ResponseEntity<ProductReference> parse(@RequestBody ProductsUrl url) {
+        log.debug("Received parse request. Url: {}", url);
+        ProductReference productReference = new ProductReference();
+        productReference.setUrl(url.getUrl());
+
+        urlParser.setProvider(productReference);
+        ProductProvider provider = providerFactory.getProvider(productReference.getMarketplace());
+        ProductReference result = provider.parseUrl(productReference);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 
     @PostMapping("/product")
     public ResponseEntity<ProductInfo> getProduct(@RequestBody ProductReference productReference) {

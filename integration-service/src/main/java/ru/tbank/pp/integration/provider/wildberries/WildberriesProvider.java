@@ -35,6 +35,7 @@ import ru.tbank.pp.integration.provider.wildberries.product.ProductSchema;
 import ru.tbank.pp.integration.provider.wildberries.product.Response;
 import ru.tbank.pp.integration.provider.wildberries.product.SizeSchema;
 import ru.tbank.pp.model.ProductsMarketplace;
+import ru.tbank.pp.model.ProductsUrl;
 
 @Slf4j
 @Service
@@ -45,14 +46,9 @@ public class WildberriesProvider implements ProductProvider {
     private final ImageService imageService;
 
     private static final String PRODUCT_URL = "https://wildberries.ru/catalog/%d/detail.aspx";
-    private static final String PRODUCT_URL_WITH_OPTION = PRODUCT_URL + "?optionId=%d";
 
-    private String buildProductUrl(Long productId, Long optionId) {
-        if (optionId == null) {
-            return String.format(PRODUCT_URL, productId);
-        } else {
-            return String.format(PRODUCT_URL_WITH_OPTION, productId, optionId);
-        }
+    private String buildProductUrl(Long productId) {
+        return String.format(PRODUCT_URL, productId);
     }
 
     private String buildNmString(List<? extends HasSku> references) {
@@ -221,7 +217,7 @@ public class WildberriesProvider implements ProductProvider {
         }
         result.setOptionName(option.getOrigName());
         PriceSchema price = option.getPrice();
-        result.setUrl(buildProductUrl(product.getId(), option.getOptionId()));
+        result.setUrl(buildProductUrl(product.getId()));
         if (price != null) {
             result.setPrice(price.getProduct());
         }
@@ -242,6 +238,18 @@ public class WildberriesProvider implements ProductProvider {
                 productReference.getMarketplace(),
                 productReference.getOptionId()
         );
+    }
+
+    @Override
+    public ProductReference parseUrl(ProductReference productReference) {
+        if (StringUtils.hasText(productReference.getUrl())) {
+            parseProductUrl(productReference);
+        } else {
+            log.error("Invalid product url: {}", productReference.getUrl());
+            throw new InvalidProductReferenceException("Invalid product url: " + productReference.getUrl());
+        }
+        productReference.setUrl(buildProductUrl(Long.parseLong(productReference.getSku())));
+        return productReference;
     }
 
     @Override
