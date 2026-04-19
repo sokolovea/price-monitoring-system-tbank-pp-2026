@@ -73,8 +73,7 @@ jobs:
           YANDEX_API_URL=${{ vars.YANDEX_API_URL }}
           YANDEX_API_KEY=${{ secrets.YANDEX_API_KEY }}
           YANDEX_FOLDER_ID=${{ secrets.YANDEX_FOLDER_ID }}
-          YANDEX_COMMAND_PATH_FOR_DOCKER=${{ vars.YANDEX_COMMAND_PATH_FOR_DOCKER }}
-          YANDEX_COMMAND_PATH_FOR_IDE=${{ vars.YANDEX_COMMAND_PATH_FOR_IDE }}
+          YANDEX_COMMAND_PATH=${{ vars.YANDEX_COMMAND_PATH }}
           YANDEX_MODEL=${{ vars.YANDEX_MODEL }}
           
           WB_ACCESS_TOKEN=${{secrets.WB_ACCESS_TOKEN}}

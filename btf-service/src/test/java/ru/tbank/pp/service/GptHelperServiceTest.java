@@ -62,7 +62,7 @@ class GptHelperServiceTest {
 
         ReflectionTestUtils.setField(gptHelperService, "objectMapper", objectMapper);
 
-        when(yandexGptProperties.getCommandPathForIde()).thenReturn(tempCommandFile.toString());
+        when(yandexGptProperties.getCommandPath()).thenReturn(tempCommandFile.toString());
         when(yandexGptProperties.getFolderId()).thenReturn("test-folder-id");
         when(yandexGptProperties.getModel()).thenReturn("/v1");
     }

@@ -69,7 +69,7 @@ public class GptHelperService {
     private YandexGptRequest getYandexGptRequest(String products) throws IOException {
         var completionOptions = new CompletionOptions(false, 0.6, 10000);
 
-        var command = Files.readString(Path.of(yandexGptProperties.getCommandPathForIde()));
+        var command = Files.readString(Path.of(yandexGptProperties.getCommandPath()));
 
         var systemMessage = new Message(YANDEX_SYSTEM_ROLE, command);
         var userMessage = new Message(YANDEX_USER_ROLE, products);

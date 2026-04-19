@@ -11,7 +11,6 @@ public class YandexGptProperties {
     String apiUrl;
     String apiKey;
     String folderId;
-    String commandPathForDocker;
-    String commandPathForIde;
+    String commandPath;
     String model;
 }
