@@ -75,7 +75,8 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/service/**",
-                                "/products/compare/recommendation"
+                                "/products/compare/recommendation",
+                                "/kafka/test"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -91,7 +92,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:8082",
-                "https://price-hunter-client.vercel.app"
+                "https://price-hunter-client.vercel.app",
+                "https://pricehunter.online"
                 ));
         configuration.setAllowedMethods(List.of("GET", "POST","PATCH", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
