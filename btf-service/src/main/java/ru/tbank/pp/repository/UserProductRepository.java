@@ -18,7 +18,7 @@ public interface UserProductRepository extends JpaRepository<UserProduct, UserPr
     @Query("SELECT up.id.userId " +
             "FROM UserProduct up " +
             "WHERE up.id.productId = :productId " +
-                "AND up.thresholdPrice <= :price " +
+                "AND :price <= up.thresholdPrice " +
                 "AND up.notify = true")
     List<Long> findUserIdsForNotification(@Param("productId") Long productId, @Param("price") BigDecimal price);
 }
